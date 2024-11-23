@@ -1,4 +1,4 @@
-This license applies exclusively to the code contained within this directory and its subdirectories. It does not extend to the assets directory, which is subject to a separate license.
+This license applies exclusively to the code contained within this directory and its subdirectories. It excludes code that has it's own license within the license directory. It also does not extend to the assets directory, which is subject to a separate licenses.
 
 MIT License
 
