@@ -9,13 +9,25 @@ To add new assets, you can put them in the `assets` directory. Then you can add 
 
 * `path` is the file path, within the `assets` directory
 * `name` is the unique keyword you will use to access the asset within the project
-* `onLoad` is a function that is called after the asset has been loaded (see `pixelArt`)
+* `onLoad` is a function that is called after the asset has been loaded (see `filterNearest`)
 
 Audio additions:
 * `sourceType` is for the load type for the source. `static` or `stream`. General rule, SFX should use `static`, Music should use `stream`
 * `audioType` is for what category the source should come under for volume.
 * `key` is for merging sources into a single "asset", when this key is played it will select one of the sources at random within the group.
 * `volume` is the static modifier for this individual source. By default it is 1, and can only go lower until 0. This is to allow for audio to be roughly equal within the same grouping.
+
+```lua
+-- Typical pixel art asset
+{ path = "UI/logoES.png", name = "ui.logoES", onLoad = filterNearest },
+-- Typical SFX asset
+{ path = "audio/ui/click4.ogg", name = "audio.ui.click.1", sourceType = "static", audioType = "ui", key = "audio.ui.click", volume = 1.0 },
+-- Typical Music asset
+{ path = "audio/world/revenge.mp3", name = "audio.music.world.revenge", sourceType = "stream", audioType = "music", volume = 0.8 },
+-- Typical animated pixel art asset
+  -- It has 3 frames, a frame is 64x64, and each frame should appear for 0.15 seconds
+{ path = "environment/fountain.png", name = "world.fountain", onLoad = makePixelAnimation, 3, 64, 64, 0.15 },
+```
 
 Fonts, are handled differently due to the window resize requirement. Talk to EngineerSmith for help with that system.
 
