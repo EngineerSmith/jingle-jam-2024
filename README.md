@@ -2,7 +2,7 @@
 This is the repo for a submission to the [2024 Jingle Jam Game Jam](https://itch.io/jam/jinglegamejam2024)
 
 ## License
-The MIT license applies exclusively to the code contained within this directory and it's subdirectories. It excludes code that has it's own license within the license directory. It also does not extend to the assets directory, which is subject to a separate license.
+The MIT license applies exclusively to the code contained within the game directory and it's subdirectories. It excludes code that has it's own license within the license directory. It also does not extend to the assets directory, which is subject to a separate license.
 
 ## Assets
 To add new assets, you can put them in the `assets` directory. Then you can add it to the `assets/assets.lua` file which lists all assets. You may have to create a subdirectory, to ensure it is correctly sorted.
