@@ -15,11 +15,11 @@ jobs:
       with:
         app_name: 'jingle-jam-game-jam-2024'
         love_version: ${{ matrix.love_version }}
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v4
       with:
         name: jam_win64
         path: ${{ steps.love-build.outputs.win64-filename }}
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v4
       with:
         name: jam_macOS
         path: ${{ steps.love-build.outputs.macos-filename }}
