@@ -7,10 +7,9 @@
 uniform mat4 projectionMatrix; // handled by the camera
 uniform mat4 viewMatrix;       // handled by the camera
 uniform mat4 modelMatrix;      // models send their own model matrices when drawn
-uniform bool isCanvasEnabled;  // detect when this model is being rendered to a canvas
 
 // the vertex normal attribute must be defined, as it is custom unlike the other attributes
-attribute vec3 VertexNormal;
+attribute layout(location = 3) vec3 VertexNormal;
 
 // define some varying vectors that are useful for writing custom fragment shaders
 varying vec4 worldPosition;
@@ -27,14 +26,10 @@ vec4 position(mat4 transformProjection, vec4 vertexPosition) {
     screenPosition = projectionMatrix * viewPosition;
 
     // save some data from this vertex for use in fragment shaders
-    vertexNormal = VertexNormal;
-    vertexColor = VertexColor;
+    mat3 normalMatrix = transpose(inverse(mat3(modelMatrix)));
+    vertexNormal = normalize(normalMatrix * VertexNormal);
 
-    // for some reason models are flipped vertically when rendering to a canvas
-    // so we need to detect when this is being rendered to a canvas, and flip it back
-    if (isCanvasEnabled) {
-        screenPosition.y *= -1.0;
-    }
+    vertexColor = VertexColor;
 
     return screenPosition;
 }

@@ -52,11 +52,13 @@ g3d.camera = require(g3d.path .. ".camera")
 g3d.collisions = require(g3d.path .. ".collisions")
 g3d.loadObj = require(g3d.path .. ".objloader")
 g3d.vectors = require(g3d.path .. ".vectors")
-g3d.camera.updateProjectionMatrix()
-g3d.camera.updateViewMatrix()
+g3d.camera.current():updateProjectionMatrix()
+g3d.camera.current():updateViewMatrix()
 
 -- so that far polygons don't overlap near polygons
-love.graphics.setDepthMode("lequal", true)
+if select(3, love.window.getMode()).depth then
+  love.graphics.setDepthMode("lequal", true)
+end
 
 -- get rid of g3d from the global namespace and return it instead
 local g3d = g3d
