@@ -43,6 +43,7 @@ local function newModel(verts, texture, translation, rotation, scale)
     -- otherwise texture is already an image, so don't bother
     if type(texture) == "string" then
         texture = love.graphics.newImage(texture)
+        texture:setFilter("nearest", "nearest")
     end
 
     -- initialize my variables
