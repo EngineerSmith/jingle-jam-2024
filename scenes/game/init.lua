@@ -5,7 +5,7 @@ cam:updateProjectionMatrix()
 
 local input = require("util.input")
 
-local park = require("assets.zones.park")
+local park = require("assets.cells.park")
 
 local scene = {
   posX = 0, posY = 0, speed = 15

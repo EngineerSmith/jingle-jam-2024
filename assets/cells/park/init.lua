@@ -1,4 +1,4 @@
-local zone = require("src.zone")
+local cell = require("src.cell")
 local g3d = require("libs.g3d")
 
 local model = g3d.newModel("assets/zones/park/model.obj", "assets/zones/park/texture.png")
@@ -6,7 +6,7 @@ local plane = g3d.newModel("assets/zones/plane.obj", "assets/zones/park/plane.pn
 --local plane = love.graphics.newImage("assets/zones/park/plane.png")
 --plane:setFilter("nearest", "nearest")
 
-local park = zone.new()
+local park = cell.new()
 
 park.draw = function()
   plane:draw()
