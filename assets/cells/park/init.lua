@@ -1,17 +1,20 @@
 local cell = require("src.cell")
 local g3d = require("libs.g3d")
 
-local model = g3d.newModel("assets/zones/park/model.obj", "assets/zones/park/texture.png")
-local plane = g3d.newModel("assets/zones/plane.obj", "assets/zones/park/plane.png")
---local plane = love.graphics.newImage("assets/zones/park/plane.png")
---plane:setFilter("nearest", "nearest")
+local model = g3d.newModel("assets/cells/park/model.obj", "assets/cells/park/texture.png")
+local plane = g3d.newModel("assets/cells/plane.obj", "assets/cells/park/plane.png")
 
 local park = cell.new()
 
-park.draw = function()
-  plane:draw()
-  model:draw()
-  --love.graphics.draw(plane, 0,0, 0, 1.5)
+park.createCollider = function(self, hc)
+  
 end
 
-return park
+park.draw = function(self)
+  plane:setTranslation(self.x, self.y, 0)
+  plane:draw()
+  model:setTranslation(self.x, self.y, 0)
+  model:draw()
+end
+
+require("src.zone").registerBossCell("city", park)
