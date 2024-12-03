@@ -58,6 +58,11 @@ local function newModel(verts, texture, translation, rotation, scale)
     return self
 end
 
+function model:setTexture(texture)
+    self.texture = texture
+    self.mesh:setTexture(texture)
+end
+
 -- populate model's normals in model's mesh automatically
 -- if true is passed in, then the normals are all flipped
 function model:makeNormals(isFlipped)

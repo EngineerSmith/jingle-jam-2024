@@ -12,6 +12,7 @@ end
 
 cell.clone = function(self)
   local newCell = cell.new()
+  newCell.createCollider = self.createCollider
   newCell.update = self.update
   newCell.draw = self.draw
   return newCell

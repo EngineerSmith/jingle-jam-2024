@@ -8,6 +8,21 @@ local plane = g3d.newModel("assets/cells/plane.obj", "assets/cells/city_res/plan
 
 local city = cell.new()
 
+local createRectCollider = function(hc, rect, offsetX, offsetY)
+  local minX, maxX, minY, maxY = math.huge, -math.huge, math.huge, -math.huge
+  for i = 1, 7, 2 do
+    minX = math.min(minX, rect[i])
+    maxX = math.max(maxX, rect[i])
+    minY = math.min(minY, rect[i+1])
+    maxY = math.max(maxY, rect[i+1])
+  end
+  
+  local x, y = minX + offsetX, minY + offsetY
+  local width, height = maxX - minX, maxY - minY
+  local shape = hc:rectangle(x, y, width, height)
+  shape.user = "building"
+end
+
 local tolerance = 0.01
 city.createCollider = function(self, hc)
   local offsetX, offsetY = self.x, self.y
@@ -23,27 +38,20 @@ city.createCollider = function(self, hc)
       if #rect ~= 4*2 then
         logger.warn("Collider tried to make collider for non-rectangle")
       else
-        local minX, maxX, minY, maxY = math.huge, -math.huge, math.huge, -math.huge
-        for i = 1, 7, 2 do
-          minX = math.min(minX, rect[i])
-          maxY = math.max(maxX, rect[i])
-          minY = math.min(minY, rect[i+1])
-          maxY = math.max(maxY, rect[i+1])
-        end
-        local x, y = minX + offsetX, maxY + offsetY
-        local width, height = maxX - minX, maxY - minY
-        local shape = hc:rectangle(x, y, width, height)
-        shape.user = "building"
+        createRectCollider(hc, rect, offsetX, offsetY)
       end
       end
       rect = { }
     elseif words[1] == "v" then
-      local z = tonumber(words[3])
-      if math.abs(z) > tolerance then
-        table.insert(rect, tonumber(words[1]))
+      local z = tonumber(words[4])
+      if math.abs(z) < tolerance then
         table.insert(rect, tonumber(words[2]))
+        table.insert(rect, tonumber(words[3]))
       end
     end
+  end
+  if rect and #rect == 4*2 then
+    createRectCollider(hc, rect, offsetX, offsetY)
   end
 end
 

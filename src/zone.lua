@@ -84,7 +84,7 @@ zone.new = function(cells, width, height)
   }, zone)
 
   for _, cell in ipairs(cells) do
-    cell:createCollider(self.hc)
+    cell:createCollider(self.HC)
   end
 
   return self

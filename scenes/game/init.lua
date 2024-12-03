@@ -13,6 +13,8 @@ local road = require("src.road")
 
 local zone = require("src.zone").getZone("city")
 
+local zombie = require("assets.character.zombie").clone(zone.HC, 0,0)
+
 local scene = {
   posX = 0, posY = 0, speed = 15
 }
@@ -23,12 +25,6 @@ end
 
 scene.load = function()
   updateCamera()
-end
-
-scene.draw = function()
-  love.graphics.clear()
-  road.draw("city")
-  zone:draw()
 end
 
 scene.resize = function(w, h)
@@ -50,11 +46,21 @@ scene.update = function(dt)
 
   local x, y = input.baton:get("move")
 
-  scene.posX, scene.posY = scene.posX + x * scene.speed * dt, scene.posY + y * scene.speed * dt
+  --scene.posX, scene.posY = scene.posX + x * scene.speed * dt, scene.posY + y * scene.speed * dt
+  zombie.shape:move(x * zombie.speed * dt, y * zombie.speed * dt)
   updateCamera()
 
   --
   zone:update(dt)
+  zombie:update(dt, zone.HC)
+  scene.posX, scene.posY = zombie.shape:center()
+end
+
+scene.draw = function()
+  love.graphics.clear()
+  road.draw("city")
+  zone:draw()
+  zombie:draw()
 end
 
 return scene
