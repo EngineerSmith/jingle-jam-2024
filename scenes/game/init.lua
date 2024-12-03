@@ -13,14 +13,16 @@ local road = require("src.road")
 
 local zone = require("src.zone").getZone("city")
 
-local zombie = require("assets.character.zombie").clone(zone.HC, 0,0)
+local player = require("assets.character.player")
+player.setZone(zone)
+local zombie = require("assets.character.zombie").clone(zone.hc, 0,0)
 
 local scene = {
   posX = 0, posY = 0, speed = 15
 }
 
 local updateCamera = function()
-  g3d.camera.current():lookAt(scene.posX, scene.posY, 25, scene.posX, scene.posY-.000001, 0)
+  g3d.camera.current():lookAt(scene.posX, scene.posY, 25, scene.posX, scene.posY-0.000001, 0)
 end
 
 scene.load = function()
@@ -43,17 +45,13 @@ scene.update = function(dt)
     --   love.mouse.setRelativeMode(false)
     --   love.mouse.setVisible(true)
     -- end
-
-  local x, y = input.baton:get("move")
-
-  --scene.posX, scene.posY = scene.posX + x * scene.speed * dt, scene.posY + y * scene.speed * dt
-  zombie.shape:move(x * zombie.speed * dt, y * zombie.speed * dt)
-  updateCamera()
-
   --
+
   zone:update(dt)
-  zombie:update(dt, zone.HC)
-  scene.posX, scene.posY = zombie.shape:center()
+  player.update(dt)
+  zombie:update(dt, zone.hc)
+  scene.posX, scene.posY = player.shape:center()
+  updateCamera()
 end
 
 scene.draw = function()
@@ -61,6 +59,7 @@ scene.draw = function()
   road.draw("city")
   zone:draw()
   zombie:draw()
+  player.draw()
 end
 
 return scene

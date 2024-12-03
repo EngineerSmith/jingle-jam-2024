@@ -1,4 +1,3 @@
-local character = require("src.character")
 local g3d = require("libs.g3d")
 
 local plane = g3d.newModel("assets/character/character.obj")
@@ -17,32 +16,30 @@ local walk_frames = {
 }
 local idle = walk_frames[1] --lg.newImage("assets/black_tile.png")--
 
+local character = require("src.character")
 local zombie = character.new()
 
 zombie.clone = function(hc, x, y)
   local self = character.new()
   self.state = "walk"
-  self.speed = 8
+  self.speed = 5
   self.timer = 0
   self.frame = 1
   self.shape = hc:circle(x+.5, y+.5, .3)
+  self.shape.user = "character"
   self.clone = zombie.clone
   self.update = zombie.update
   self.draw = zombie.draw
-  self.targetX, self.targetY = 0, 0
+  self.targetX, self.targetY = nil, nil
   return self
 end
 
-local hit = false
 zombie.update = function(self, dt, hc)
-  if not hit then
-    --self.shape:move(-3 * dt, 0 * dt)
     for other, vector in pairs(hc:collisions(self.shape)) do
-      self.shape:move(vector.x, vector.y)
-      print("hit shape", other.user or "unknown", ":", other.user2 or "")
-      --hit = true
+      if other.user ~= "character" then
+        self.shape:move(vector.x, vector.y)
+      end
     end
-  end
 
   if self.state == "idle" then
     self.frame = 1
@@ -61,7 +58,7 @@ end
 
 zombie.draw = function(self)
   local x, y = self.shape:center()
-  plane:setTranslation(x, y, 0.1)
+  plane:setTranslation(x, y, 0.05)
   if self.state == "idle" then
     plane:setTexture(idle)
   elseif self.state == "walk" then

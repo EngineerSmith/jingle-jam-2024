@@ -80,11 +80,11 @@ zone.new = function(cells, width, height)
   local self = setmetatable({
     width = width, height = height,
     cells = cells,
-    HC = require("libs.HC").new(),
+    hc = require("libs.HC").new(),
   }, zone)
 
   for _, cell in ipairs(cells) do
-    cell:createCollider(self.HC)
+    cell:createCollider(self.hc)
   end
 
   return self

@@ -16,11 +16,12 @@ local createRectCollider = function(hc, rect, offsetX, offsetY)
     minY = math.min(minY, rect[i+1])
     maxY = math.max(maxY, rect[i+1])
   end
-  
+
   local x, y = minX + offsetX, minY + offsetY
   local width, height = maxX - minX, maxY - minY
   local shape = hc:rectangle(x, y, width, height)
-  shape.user = "building"
+  shape.user = "building."..(rect.name or "unknown")
+  shape.user2 = table.concat(rect, ", ")
 end
 
 local tolerance = 0.01
