@@ -22,7 +22,7 @@ attribute layout(location = 3) vec3 VertexNormal;
 vec4 position(mat4 transformProjection, vec4 vertexPosition) {
     // calculate the positions of the transformed coordinates on the screen
     // save each step of the process, as these are often useful when writing custom fragment shaders
-    worldPosition = modelMatrix * vertexPosition;
+    worldPosition = TransformMatrix * modelMatrix * vertexPosition;
     viewPosition = viewMatrix * worldPosition;
     screenPosition = projectionMatrix * viewPosition;
 

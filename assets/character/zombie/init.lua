@@ -1,6 +1,7 @@
 local g3d = require("libs.g3d")
 
 local plane = g3d.newModel("assets/character/character.obj")
+local deadPlane = g3d.newModel("assets/character/death.obj")
 
 local lg = love.graphics
 
@@ -82,6 +83,10 @@ zombie.clone = function(hc, x, y)
 end
 
 zombie.hit = function(self, damage, zone)
+  if self.health == 0 then
+    return
+  end
+
   self.health = self.health - damage
   if self.health <= 0 then
     self.health = 0
@@ -92,6 +97,8 @@ zombie.hit = function(self, damage, zone)
     self.shape = nil
     zone.hc:remove(self.pathShape)
     self.pathShape = nil
+
+    zone:addBlood(self.x, self.y, self.r-math.rad(270))
   end
 end
 
@@ -177,9 +184,13 @@ zombie.draw = function(self)
     x, y = self.shape:center()
     r = self.shape:rotation()
   end
+
+  local plane = self.health ~= 0 and plane or deadPlane
   plane:setTranslation(x, y, 0.05)
+  
   plane:setRotation(0, 0, r-math.rad(90))
   if self.health == 0 then
+    plane:setTranslation(x, y, 0.03)
     plane:setTexture(self.deathFrames[self.frame])
   elseif self.state == "idle" then
     plane:setTexture(self.frames[1])

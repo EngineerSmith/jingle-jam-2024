@@ -66,6 +66,7 @@ end
 
 scene.draw = function()
   lg.clear()
+  lg.origin()
   road.draw("city")
   zone:draw()
   player.draw()

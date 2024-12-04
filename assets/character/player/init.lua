@@ -96,6 +96,9 @@ player.update = function(dt, zombies)
             shape.user3:hit(player.attackDamage, player.zone)
             goto breakOut
           end
+          if shape.user == "building" then
+            goto breakOut
+          end
         end
         bullet:move(-nx*step, ny*step)
         dist = dist + step

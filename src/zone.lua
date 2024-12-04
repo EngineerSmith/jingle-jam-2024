@@ -1,5 +1,6 @@
 local logger = require("util.logger")
 local zombie_base = require("assets.character.zombie")
+local blood = require("src.blood")
 
 local zone = {
   types = { }
@@ -137,6 +138,7 @@ zone.new = function(cells, zombies, width, height)
     cells = cells,
     zombies = zombies,
     hc = require("libs.HC").new(2),
+    blood = { },
   }, zone)
 
   for _, cell in ipairs(cells) do
@@ -144,6 +146,10 @@ zone.new = function(cells, zombies, width, height)
   end
 
   return self
+end
+
+zone.addBlood = function(self, x, y, r)
+  table.insert(self.blood, blood.new(x, y, r))
 end
 
 zone.update = function(self, dt)
@@ -162,6 +168,7 @@ zone.draw = function(self)
   for _, z in ipairs(self.zombies) do
     z:draw()
   end
+  blood.draw(self.blood)
 end
 
 return zone
