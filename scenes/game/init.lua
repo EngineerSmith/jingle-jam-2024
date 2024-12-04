@@ -15,7 +15,6 @@ local zone = require("src.zone").getZone("city")
 
 local player = require("assets.character.player")
 player.setZone(zone)
-local zombie = require("assets.character.zombie").clone(zone.hc, 0,0)
 
 local scene = {
   posX = 0, posY = 0, speed = 15
@@ -47,9 +46,14 @@ scene.update = function(dt)
     -- end
   --
 
+  local tx, ty = player.shape:center()
+  for i = 1, #zone.zombies/2 do
+    local z = zone.zombies[i]
+    z.targetX, z.targetY = tx, ty
+  end
+
   zone:update(dt)
   player.update(dt)
-  zombie:update(dt, zone.hc)
   scene.posX, scene.posY = player.shape:center()
   updateCamera()
 end
@@ -58,7 +62,6 @@ scene.draw = function()
   love.graphics.clear()
   road.draw("city")
   zone:draw()
-  zombie:draw()
   player.draw()
 end
 

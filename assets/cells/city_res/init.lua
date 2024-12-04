@@ -20,7 +20,7 @@ local createRectCollider = function(hc, rect, offsetX, offsetY)
   local x, y = minX + offsetX, minY + offsetY
   local width, height = maxX - minX, maxY - minY
   local shape = hc:rectangle(x, y, width, height)
-  shape.user = "building."..(rect.name or "unknown")
+  shape.user = "building"
   shape.user2 = table.concat(rect, ", ")
 end
 
