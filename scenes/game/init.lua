@@ -58,11 +58,20 @@ scene.update = function(dt)
   updateCamera()
 end
 
+local lg = love.graphics
+scene.drawui = function()
+  lg.setColor(1,1,1,1)
+  lg.print(("%.2f"):format(player.attackCooldown))
+end
+
 scene.draw = function()
-  love.graphics.clear()
+  lg.clear()
   road.draw("city")
   zone:draw()
   player.draw()
+  lg.setDepthMode("always", true)
+  scene.drawui()
+  lg.setDepthMode("lequal", true)
 end
 
 return scene
