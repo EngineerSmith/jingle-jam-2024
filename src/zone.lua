@@ -136,7 +136,7 @@ zone.new = function(cells, zombies, width, height)
   local self = setmetatable({
     cells = cells,
     zombies = zombies,
-    hc = require("libs.HC").new(),
+    hc = require("libs.HC").new(2),
   }, zone)
 
   for _, cell in ipairs(cells) do

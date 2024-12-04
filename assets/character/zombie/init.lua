@@ -28,6 +28,8 @@ zombie.clone = function(hc, x, y)
   self.shape = hc:circle(x+.5, y+.5, .3)
   self.shape.user = "character"
   self.shape.user2 = "zombie"
+  self.pathShape = hc:circle(x+.5, y+.5, 2)
+  self.pathShape.user = "collider"
   self.clone = zombie.clone
   self.update = zombie.update
   self.draw = zombie.draw
@@ -37,14 +39,41 @@ zombie.clone = function(hc, x, y)
   return self
 end
 
+local feelerStrength = 2.3
+local feelerPower = 1.05
 zombie.update = function(self, dt, hc)
   if self.targetX and self.targetY then
+    local mx, my = 0, 0
+
     local x, y = self.shape:center()
     local dx, dy = self.targetX - x, self.targetY - y
-    local mag = math.sqrt(dx^2 + dy^2)
-    if mag >= 1 then
-      self.shape:move((dx/mag)*dt*self.speed, (dy/mag)*dt*self.speed)
-      self.shape:setRotation(math.atan2(-dy, -dx))
+    local distToTarget = math.sqrt(dx^2 + dy^2)
+    
+    if distToTarget >= .3 then
+      mx, my = mx + dx, my + dy
+
+      -- feelers
+      local fx, fy = 0, 0
+      if distToTarget >= 1.5 and distToTarget <= 70 then
+        for other, vector in pairs(hc:collisions(self.pathShape)) do
+          if other.user == "building" then
+            local distToVec = math.sqrt(vector.x^2+vector.y^2)
+            if distToVec > .2 then
+              local scaledForce = feelerStrength * distToVec^feelerPower
+              fx = fx + (vector.x * scaledForce)
+              fy = fy + (vector.y * scaledForce)
+            end
+          end
+        end
+      end
+
+      mx, my = mx + fx, my + fy
+    end
+    
+    local mag = math.sqrt(mx^2 + my^2)
+    if mag >= .3 then
+      self.shape:move((mx/mag)*dt*self.speed, (my/mag)*dt*self.speed)
+      self.shape:setRotation(math.atan2(-my, -mx))
       self.state = "walk"
     else
       self.targetX, self.targetY = nil, nil
@@ -53,13 +82,14 @@ zombie.update = function(self, dt, hc)
   end
 
   for other, vector in pairs(hc:collisions(self.shape)) do
-    if other.user ~= "character" then
+    if other.user ~= "character" and other.user ~= "collider" then
       self.shape:move(vector.x, vector.y)
     elseif other.user2 == "zombie" then
-      self.shape:move(vector.x/8, vector.y/8)
+      self.shape:move(vector.x/5, vector.y/5)
     end
   end
 
+  self.pathShape:moveTo(self.shape:center())
   if dt == 0 then return end
 
   if self.state == "idle" then
