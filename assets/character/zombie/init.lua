@@ -123,7 +123,7 @@ zombie.update = function(self, dt, hc)
         local fx, fy = 0, 0
         if distToTarget >= 1.5 and distToTarget <= 70 then
           for other, vector in pairs(hc:collisions(self.pathShape)) do
-            if other.user == "building" then
+            if other.user == "building" or other.user == "egg" then
               local distToVec = math.sqrt(vector.x^2+vector.y^2)
               if distToVec > .2 then
                 local scaledForce = (feelerStrength * 1-math.min(distToTarget,1)) * distToVec^feelerPower
@@ -177,7 +177,7 @@ zombie.update = function(self, dt, hc)
         local rx, ry = love.math.random(-30,30)/10, love.math.random(-300,300)/100
         local hit = false
         for shape in pairs(hc:shapesAt(zx+rx, zy+ry)) do
-          if shape.user == "building" then
+          if shape.user == "building" and shape.user == "egg" then
             hit = true
             break
           end

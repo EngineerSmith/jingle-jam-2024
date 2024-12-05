@@ -104,7 +104,7 @@ zone.getZone = function(type)
           local rx, ry = love.math.random(minX, maxX), love.math.random(minY, maxY)
           local hit = false
           for shape in pairs(newZone.hc:shapesAt(rx, ry)) do
-            if shape.user == "building" then
+            if shape.user == "building" or shape.user == "egg" then
               hit = true
               break
             end
@@ -114,7 +114,7 @@ zone.getZone = function(type)
               local zx, zy = love.math.random(-3, 3)+rx, love.math.random(-3, 3)+ry
               local hit = false
               for shape in pairs(newZone.hc:shapesAt(rx, ry)) do
-                if shape.user == "building" then
+                if shape.user == "building" or shape.user == "egg" then
                   hit = true
                   break
                 end
@@ -143,6 +143,10 @@ zone.new = function(cells, zombies, width, height)
 
   for _, cell in ipairs(cells) do
     cell:createCollider(self.hc)
+    if cell.boss then
+      cell:createEggCollider(self.hc)
+      self.bossCell = cell
+    end
   end
 
   return self
@@ -167,7 +171,6 @@ zone.makeNoise = function(self, level, x, y)
       local mag = vx^2+vy^2
       if mag <= level2 then
         zombie.targetX, zombie.targetY = x, y
-        --zombie.reason = "noise"
       end
     end
   end
@@ -180,6 +183,7 @@ zone.update = function(self, dt)
   for _, z in ipairs(self.zombies) do
     z:update(dt, self.hc)
   end
+  self.bossCell:updateEgg(dt)
 end
 
 zone.draw = function(self)
@@ -190,6 +194,7 @@ zone.draw = function(self)
     z:draw()
   end
   blood.draw(self.blood)
+  self.bossCell:drawEgg()
 end
 
 return zone

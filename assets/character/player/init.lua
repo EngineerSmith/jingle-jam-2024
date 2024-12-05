@@ -59,9 +59,9 @@ player.attack = "bat" -- "pistol"
 
 player.frames = player.attack == "pistol" and pistol_frames or player.attack == "bat" and bat_frames or walk_frames
 
-player.setZone = function(zone)
+player.setZone = function(zone, x, y)
   player.zone = zone
-  player.x, player.y = 0, 0
+  player.x, player.y = x or 0, y or 0
   player.hc = zone.hc
   player.shape = player.hc:circle(player.x, player.y, player.size)
   player.shape.user = "character"
@@ -158,7 +158,7 @@ player.update = function(dt, zombies)
               shape.user3:hit(pistolDamage, player.zone)
               goto breakOut
             end
-            if shape.user == "building" then
+            if shape.user == "building" or shape.user == "egg" then
               goto breakOut
             end
           end

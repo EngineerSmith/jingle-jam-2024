@@ -14,7 +14,7 @@ local road = require("src.road")
 local zone = require("src.zone").getZone("city")
 
 local player = require("assets.character.player")
-player.setZone(zone)
+player.setZone(zone, 0, -1)
 
 local scene = {
   posX = 0, posY = 0, speed = 15
