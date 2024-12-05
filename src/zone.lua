@@ -158,6 +158,21 @@ zone.addBlood = function(self, x, y, r, isDead)
   end
 end
 
+zone.makeNoise = function(self, level, x, y)
+  local level2 = level^2
+  for _, zombie in ipairs(self.zombies) do
+    if zombie.health > 0 then
+      local zx, zy = zombie.shape:center()
+      local vx, vy = x - zx, y - zy
+      local mag = vx^2+vy^2
+      if mag <= level2 then
+        zombie.targetX, zombie.targetY = x, y
+        --zombie.reason = "noise"
+      end
+    end
+  end
+end
+
 zone.update = function(self, dt)
   for _, cell in ipairs(self.cells) do
     cell:update(dt)

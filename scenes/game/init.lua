@@ -35,21 +35,20 @@ scene.resize = function(w, h)
 end
 
 scene.update = function(dt)
+  love.mouse.setRelativeMode(false)
+  love.mouse.setVisible(true)
 
-  -- TODO if mouse wiggle, show mouse?
-    -- if suit.gamepadActive then
-    --   love.mouse.setRelativeMode(true)
-    --   love.mouse.setVisible(false)
-    -- else
-    --   love.mouse.setRelativeMode(false)
-    --   love.mouse.setVisible(true)
-    -- end
-  --
-
+  -- can zombie see player
   local tx, ty = player.shape:center()
-  for i = 1, #zone.zombies/2 do
+  for i = 1, #zone.zombies do
     local z = zone.zombies[i]
-    z.targetX, z.targetY = tx, ty
+    if z.health > 0 then
+      local zx, zy = z.shape:center()
+      if (tx - zx)^2 + (ty - zy)^2 <= (8)^2 then
+        z.targetX, z.targetY = tx, ty
+        --zombie.reason = "vision"
+      end
+    end
   end
 
   zone:update(dt)

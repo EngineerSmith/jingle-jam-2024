@@ -60,8 +60,9 @@ zombie.clone = function(hc, x, y)
   self.speed = love.math.random(45, 55)/10
   self.health = 3
 
-  self.timer = 0
-  self.frame = 1
+  self.timer, self.frame = 0, 1
+  self.idleTimer, self.idleTimerTarget = 0, love.math.random(20, 50)/10
+
   self.shape = hc:circle(x+.5, y+.5, .3)
   self.shape.user = "character"
   self.shape.user2 = "zombie"
@@ -163,9 +164,31 @@ zombie.update = function(self, dt, hc)
       self.frame = 2
     end
   elseif self.state == "idle" then
-    self.frame = 1
-    self.timer = 0
+    self.frame, self.timer = 1, 0
+
+    self.idleTimer = self.idleTimer + dt
+    if self.idleTimer >= self.idleTimerTarget then
+      self.idleTimer, self.idleTimerTarget = 0, love.math.random(40, 80)/10
+      local zx, zy = self.shape:center()
+      for _ = 1, 5 do -- try X times to find wander point
+        local rx, ry = love.math.random(-30,30)/10, love.math.random(-30,30)/10
+        local hit = false
+        for shape in pairs(hc:shapesAt(zx+rx, zy+ry)) do
+          if shape.user == "building" then
+            hit = true
+            break
+          end
+        end
+        if not hit then
+          self.targetX, self.targetY = zx + rx, zy + ry
+          self.reason = "wander"
+          break
+        end
+      end
+    end
   elseif self.state == "walk" then
+    self.idleTimer, self.idleTimerTarget = 0, love.math.random(40, 80)/10
+
     self.timer = self.timer + dt
     while self.timer >= 0.1 do
       self.timer = self.timer - 0.1

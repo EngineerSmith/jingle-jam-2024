@@ -16,7 +16,7 @@ local walk_frames = {
   lg.newImage("assets/character/player/player_007.png"),
 }
 
-local pistolCooldown, pistolNoise = 0.2, 20
+local pistolCooldown, pistolNoise = 0.2, 40
 local pistol_frames = {
   lg.newImage("assets/character/player/player_pistol_000.png"),
   lg.newImage("assets/character/player/player_pistol_001.png"),
@@ -93,7 +93,7 @@ player.update = function(dt, zombies)
       player.attackCooldown = pistolCooldown
       player.specialTexture = pistol_flash
       local x, y = player.shape:center()
-      zone:makeNoise(pistolNoise, x, y)
+      player.zone:makeNoise(pistolNoise, x, y)
 
       local bullet = player.hc:point(x, y)
       bullet:move(-nx*.3, ny*.3)
@@ -118,8 +118,7 @@ player.update = function(dt, zombies)
   end
 
   if player.state == "idle" then
-    player.frame = 1
-    player.timer = 0
+    player.frame, player.timer = 1, 0
   elseif player.state == "walk" then
     player.timer = player.timer + dt
     while player.timer >= 0.06 do
