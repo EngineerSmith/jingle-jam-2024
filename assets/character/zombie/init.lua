@@ -88,18 +88,21 @@ zombie.hit = function(self, damage, zone)
     return
   end
 
+  local x, y = self.shape:center()
+  local r = self.shape:rotation()
+
   self.health = self.health - damage
   if self.health <= 0 then
     self.health = 0
     self.frame, self.timer = 1, 0
-    self.x, self.y = self.shape:center()
-    self.r = self.shape:rotation()
+    self.x, self.y = x, y
+    self.r = r
     zone.hc:remove(self.shape)
     self.shape = nil
     zone.hc:remove(self.pathShape)
     self.pathShape = nil
   end
-  zone:addBlood(self.x, self.y, self.r-math.rad(270), self.health == 0)
+  zone:addBlood(x, y, r-math.rad(270), self.health == 0)
 end
 
 local feelerStrength = 2.3
@@ -168,10 +171,10 @@ zombie.update = function(self, dt, hc)
 
     self.idleTimer = self.idleTimer + dt
     if self.idleTimer >= self.idleTimerTarget then
-      self.idleTimer, self.idleTimerTarget = 0, love.math.random(40, 80)/10
+      self.idleTimer, self.idleTimerTarget = 0, love.math.random(20, 60)/10
       local zx, zy = self.shape:center()
       for _ = 1, 5 do -- try X times to find wander point
-        local rx, ry = love.math.random(-30,30)/10, love.math.random(-30,30)/10
+        local rx, ry = love.math.random(-30,30)/10, love.math.random(-300,300)/100
         local hit = false
         for shape in pairs(hc:shapesAt(zx+rx, zy+ry)) do
           if shape.user == "building" then
@@ -187,7 +190,7 @@ zombie.update = function(self, dt, hc)
       end
     end
   elseif self.state == "walk" then
-    self.idleTimer, self.idleTimerTarget = 0, love.math.random(40, 80)/10
+    self.idleTimer, self.idleTimerTarget = 0, love.math.random(20, 60)/10
 
     self.timer = self.timer + dt
     while self.timer >= 0.1 do

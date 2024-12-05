@@ -16,7 +16,7 @@ local walk_frames = {
   lg.newImage("assets/character/player/player_007.png"),
 }
 
-local pistolCooldown, pistolNoise = 0.2, 40
+local pistolCooldown, pistolNoise, pistolDamage = 0.2, 40, 3
 local pistol_frames = {
   lg.newImage("assets/character/player/player_pistol_000.png"),
   lg.newImage("assets/character/player/player_pistol_001.png"),
@@ -29,20 +29,41 @@ local pistol_frames = {
 }
 local pistol_flash = lg.newImage("assets/character/player/player_pistol_flash.png")
 
+local batCooldown, batNoise, batDamage, batSizeW, batSizeH = 0.12, 5, 1.5, 0.4, 0.7
+local bat_frames = {
+  lg.newImage("assets/character/player/player_bat_000.png"),
+  lg.newImage("assets/character/player/player_bat_001.png"),
+  lg.newImage("assets/character/player/player_bat_002.png"),
+  lg.newImage("assets/character/player/player_bat_003.png"),
+  lg.newImage("assets/character/player/player_bat_004.png"),
+  lg.newImage("assets/character/player/player_bat_005.png"),
+  lg.newImage("assets/character/player/player_bat_006.png"),
+  lg.newImage("assets/character/player/player_bat_007.png"),
+}
+local bat_swing = {
+  lg.newImage("assets/character/player/player_bat_swing_000.png"),
+  lg.newImage("assets/character/player/player_bat_swing_001.png"),
+  lg.newImage("assets/character/player/player_bat_swing_002.png"),
+  lg.newImage("assets/character/player/player_bat_swing_003.png"),
+  lg.newImage("assets/character/player/player_bat_swing_004.png"),
+  lg.newImage("assets/character/player/player_bat_swing_005.png"),
+}
+
 local character = require("src.character")
 local player = character.new()
 player.x, player.y = 0,0
-player.speed = 6
+player.speed, player.size = 6, 0.3
 player.frame, player.timer = 1,0
-player.frames = pistol_frames
 player.attackCooldown = 0
-player.attackDamage = 3
+player.attack = "bat" -- "pistol"
+
+player.frames = player.attack == "pistol" and pistol_frames or player.attack == "bat" and bat_frames or walk_frames
 
 player.setZone = function(zone)
   player.zone = zone
   player.x, player.y = 0, 0
   player.hc = zone.hc
-  player.shape = player.hc:circle(player.x, player.y, 0.3)
+  player.shape = player.hc:circle(player.x, player.y, player.size)
   player.shape.user = "character"
 end
 
@@ -74,10 +95,12 @@ player.update = function(dt, zombies)
     end
   end
 
-  if moved then
-    player.state = "walk"
-  else
-    player.state = "idle"
+  if player.state ~= "swing_bat" then
+    if moved then
+      player.state = "walk"
+    else
+      player.state = "idle"
+    end
   end
 
   player.attackCooldown = player.attackCooldown - dt
@@ -88,32 +111,62 @@ player.update = function(dt, zombies)
     player.specialTexture = nil
   end
 
-  if input.baton:pressed("attack") then
-    if player.attackCooldown == 0 then
-      player.attackCooldown = pistolCooldown
-      player.specialTexture = pistol_flash
-      local x, y = player.shape:center()
-      player.zone:makeNoise(pistolNoise, x, y)
+  if player.rect then
+    local x, y = player.shape:center()
+    player.rect:moveTo(x, y)
+    player.rect:setRotation(player.shape:rotation(), x, y)
+    player.rect:moveTo(x-nx*batSizeH, y+ny*batSizeH)
+  end
 
-      local bullet = player.hc:point(x, y)
-      bullet:move(-nx*.3, ny*.3)
-      local dist, step = 0, .05
-      while dist <= 20 do
-        for shape in pairs(player.hc:collisions(bullet)) do
+  if player.attack == "bat" then
+    if input.baton:pressed("attack") then
+      if player.attackCooldown == 0 then
+        player.attackCooldown = batCooldown
+        player.state = "swing_bat"
+        player.timer, player.frame = 0, 1
+
+        local x, y = player.shape:center()
+        player.zone:makeNoise(batNoise, x, y)
+
+        player.rect = player.rect or player.hc:rectangle(0, 0, batSizeH*2, batSizeW)
+        local rect = player.rect
+        rect.user = "collider"
+        rect:moveTo(x, y)
+        rect:setRotation(player.shape:rotation(), x, y)
+        rect:moveTo(x-nx*batSizeH, y+ny*batSizeH)
+        for shape in pairs(player.hc:collisions(rect)) do
           if shape.user == "character" and shape.user2 == "zombie" and shape.user3.health ~= 0 then
-            shape.user3:hit(player.attackDamage, player.zone)
-            goto breakOut
-          end
-          if shape.user == "building" then
-            goto breakOut
+            shape.user3:hit(batDamage, player.zone)
           end
         end
-        bullet:move(-nx*step, ny*step)
-        dist = dist + step
+        --player.hc:remove(rect)
       end
-      ::breakOut::
-    else
+    end
+  elseif player.attack == "pistol" then
+    if input.baton:pressed("attack") then
+      if player.attackCooldown == 0 then
+        player.attackCooldown = pistolCooldown
+        local x, y = player.shape:center()
+        player.zone:makeNoise(pistolNoise, x, y)
 
+        local bullet = player.hc:point(x, y)
+        bullet:move(-nx*player.size, ny*player.size)
+        local dist, step = 0, .05
+        while dist <= 20 do
+          for shape in pairs(player.hc:collisions(bullet)) do
+            if shape.user == "character" and shape.user2 == "zombie" and shape.user3.health ~= 0 then
+              shape.user3:hit(pistolDamage, player.zone)
+              goto breakOut
+            end
+            if shape.user == "building" then
+              goto breakOut
+            end
+          end
+          bullet:move(-nx*step, ny*step)
+          dist = dist + step
+        end
+        ::breakOut::
+      end
     end
   end
 
@@ -128,6 +181,17 @@ player.update = function(dt, zombies)
         player.frame = 1
       end
     end
+  elseif player.state == "swing_bat" then
+    player.timer = player.timer + dt
+    while player.timer >= batCooldown/#bat_swing do
+      player.timer = player.timer - 0.06
+      player.frame = player.frame + 1
+      if player.frame > #bat_swing then
+        player.state = "idle"
+        player.timer, player.frame = 0, 1
+        break
+      end
+    end
   end
 end
 
@@ -137,6 +201,8 @@ player.draw = function()
   plane:setRotation(0, 0, player.shape:rotation()-math.rad(90))
   if player.specialTexture then
     plane:setTexture(player.specialTexture)
+  elseif player.state == "swing_bat" then
+    plane:setTexture(bat_swing[player.frame])
   elseif player.state == "idle" then
     plane:setTexture(player.frames[1])
   elseif player.state == "walk" then

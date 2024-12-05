@@ -70,6 +70,19 @@ scene.draw = function()
   zone:draw()
   player.draw()
   lg.setDepthMode("always", true)
+  lg.push("all")
+  lg.origin()
+  local ww, wh = love.graphics.getDimensions()
+  lg.translate(ww/2, wh/2)
+  -- if player.rect then
+  --   lg.getLineWidth(1/50)
+  --   lg.scale(50)
+  --   player.rect:draw('line', true)
+  --   lg.scale(0.5)
+  --   player.shape:draw('line')
+  -- end
+  lg.pop()
+
   scene.drawui()
   lg.setDepthMode("lequal", true)
 end

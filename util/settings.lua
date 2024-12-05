@@ -40,7 +40,7 @@ local defaultSettings = {
         pause =   { "sc:escape", "button:start" },
         unpause = { "sc:escape", "sc:backspace", "button:start", "button:back", "button:b" },
         --
-        attack = { "mouse:1" },
+        attack = { "mouse:1", "button:x" },
       },
       deadzone = .15,
       deadzoneSquared = false,
