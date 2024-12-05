@@ -148,8 +148,14 @@ zone.new = function(cells, zombies, width, height)
   return self
 end
 
-zone.addBlood = function(self, x, y, r)
-  table.insert(self.blood, blood.new(x, y, r))
+zone.addBlood = function(self, x, y, r, isDead)
+  local n = isDead and 2 or 0
+  for _ = 1, love.math.random(3 + n, 5 + n) do
+    table.insert(self.blood, blood.new(
+      x + love.math.random(-50,50)/55,
+      y + love.math.random(-50,50)/55,
+      r + love.math.random() * .4 - .2))
+  end
 end
 
 zone.update = function(self, dt)

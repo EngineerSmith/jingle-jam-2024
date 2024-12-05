@@ -97,9 +97,8 @@ zombie.hit = function(self, damage, zone)
     self.shape = nil
     zone.hc:remove(self.pathShape)
     self.pathShape = nil
-
-    zone:addBlood(self.x, self.y, self.r-math.rad(270))
   end
+  zone:addBlood(self.x, self.y, self.r-math.rad(270), self.health == 0)
 end
 
 local feelerStrength = 2.3
@@ -123,7 +122,7 @@ zombie.update = function(self, dt, hc)
             if other.user == "building" then
               local distToVec = math.sqrt(vector.x^2+vector.y^2)
               if distToVec > .2 then
-                local scaledForce = feelerStrength * distToVec^feelerPower
+                local scaledForce = (feelerStrength * 1-math.min(distToTarget,1)) * distToVec^feelerPower
                 fx = fx + (vector.x * scaledForce)
                 fy = fy + (vector.y * scaledForce)
               end

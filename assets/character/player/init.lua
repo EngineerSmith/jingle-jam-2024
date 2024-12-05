@@ -16,6 +16,7 @@ local walk_frames = {
   lg.newImage("assets/character/player/player_007.png"),
 }
 
+local pistolCooldown, pistolNoise = 0.2, 20
 local pistol_frames = {
   lg.newImage("assets/character/player/player_pistol_000.png"),
   lg.newImage("assets/character/player/player_pistol_001.png"),
@@ -26,6 +27,7 @@ local pistol_frames = {
   lg.newImage("assets/character/player/player_pistol_006.png"),
   lg.newImage("assets/character/player/player_pistol_007.png"),
 }
+local pistol_flash = lg.newImage("assets/character/player/player_pistol_flash.png")
 
 local character = require("src.character")
 local player = character.new()
@@ -82,14 +84,20 @@ player.update = function(dt, zombies)
   if player.attackCooldown <= 0 then
     player.attackCooldown = 0
   end
+  if player.specialTexture == pistol_flash and player.attackCooldown <= pistolCooldown-0.1 then
+    player.specialTexture = nil
+  end
 
   if input.baton:pressed("attack") then
     if player.attackCooldown == 0 then
-      player.attackCooldown = 0.1
+      player.attackCooldown = pistolCooldown
+      player.specialTexture = pistol_flash
+      local x, y = player.shape:center()
+      zone:makeNoise(pistolNoise, x, y)
 
-      local bullet = player.hc:point(player.shape:center())
+      local bullet = player.hc:point(x, y)
       bullet:move(-nx*.3, ny*.3)
-      local dist, step = 0, .1
+      local dist, step = 0, .05
       while dist <= 20 do
         for shape in pairs(player.hc:collisions(bullet)) do
           if shape.user == "character" and shape.user2 == "zombie" and shape.user3.health ~= 0 then
@@ -128,7 +136,9 @@ player.draw = function()
   local x, y = player.shape:center()
   plane:setTranslation(x, y, 0.1)
   plane:setRotation(0, 0, player.shape:rotation()-math.rad(90))
-  if player.state == "idle" then
+  if player.specialTexture then
+    plane:setTexture(player.specialTexture)
+  elseif player.state == "idle" then
     plane:setTexture(player.frames[1])
   elseif player.state == "walk" then
     plane:setTexture(player.frames[player.frame])

@@ -1,13 +1,15 @@
 local lg = love.graphics
 local g3d = require("libs.g3d")
 
-local plane = g3d.newModel("assets/character/character.obj", nil, { 0,0,0.04 })
+local plane = g3d.newModel("assets/blood/model.obj", nil, { 0,0,0.04 })
 
 lg.setDefaultFilter("nearest", "nearest")
 local textures = {
-  -- lg.newImage("assets/blood/blood_001.png"),
-  -- lg.newImage("assets/blood/blood_002.png"),
-  lg.newImage("assets/blood/blood_splat.png"),
+  lg.newImage("assets/blood/blood_001.png"),
+  lg.newImage("assets/blood/blood_002.png"),
+  lg.newImage("assets/blood/blood_003.png"),
+  lg.newImage("assets/blood/blood_004.png"),
+  lg.newImage("assets/blood/blood_005.png"),
 }
 
 local blood = { }
