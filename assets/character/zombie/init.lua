@@ -177,7 +177,7 @@ zombie.update = function(self, dt, hc)
         local rx, ry = love.math.random(-30,30)/10, love.math.random(-300,300)/100
         local hit = false
         for shape in pairs(hc:shapesAt(zx+rx, zy+ry)) do
-          if shape.user == "building" and shape.user == "egg" then
+          if shape.user == "building" or shape.user == "egg" then
             hit = true
             break
           end
