@@ -158,7 +158,7 @@ zone.addBlood = function(self, x, y, r, isDead)
     table.insert(self.blood, blood.new(
       x + love.math.random(-50,50)/55,
       y + love.math.random(-50,50)/55,
-      r + love.math.random() * .4 - .2))
+      r + love.math.random() - .5))
   end
 end
 
