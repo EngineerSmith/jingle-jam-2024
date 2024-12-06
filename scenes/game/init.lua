@@ -15,6 +15,7 @@ end
 local road = require("src.road")
 
 local zone = require("src.zone").getZone("city")
+road.createColliders("city", zone.hc)
 
 local player = require("assets.character.player")
 player.setZone(zone, 0, -1)
