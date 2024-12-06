@@ -109,7 +109,8 @@ player.update = function(dt, zombies)
   local moved = x ~= 0 or y ~= 0
 
   for other, vector in pairs(player.hc:collisions(player.shape)) do
-    if other.user ~= "character" and other.user ~= "collider" then
+    if other.user ~= "character" and other.user ~= "collider" or
+      (other.user == "character" and other.user2 == "boss") then
       player.shape:move(vector.x, vector.y)
       moved = moved or (vector.x ~= 0 or vector.y ~= 0)
     end

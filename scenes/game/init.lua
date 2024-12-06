@@ -16,6 +16,7 @@ local road = require("src.road")
 
 local zone = require("src.zone").getZone("city")
 road.createColliders("city", zone.hc)
+zone:forceBossSpawn()
 
 local player = require("assets.character.player")
 player.setZone(zone, 0, -1)
@@ -42,8 +43,9 @@ scene.update = function(dt)
   love.mouse.setRelativeMode(false)
   love.mouse.setVisible(true)
 
-  -- can zombie see player
   local tx, ty = player.shape:center()
+
+  -- can zombie see player
   for i = 1, #zone.zombies do
     local z = zone.zombies[i]
     if z.health > 0 then
@@ -53,6 +55,11 @@ scene.update = function(dt)
         --zombie.reason = "vision"
       end
     end
+  end
+
+  -- boss can ALWAYS see player
+  if zone.boss then
+    zone.boss.targetX, zone.boss.targetY = tx, ty
   end
 
   zone:update(dt)

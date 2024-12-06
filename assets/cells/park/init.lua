@@ -55,6 +55,11 @@ park.createCollider = function(self, hc)
   end
 end
 
+park.spawnBoss = function(self, hc)
+  local boss = require("assets.boss.fat").clone(hc, 0, 2)
+  return boss
+end
+
 park.draw = function(self)
   plane:setTranslation(self.x, self.y, 0)
   plane:draw()

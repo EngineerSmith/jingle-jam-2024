@@ -69,6 +69,7 @@ zombie.clone = function(hc, x, y)
   self.shape.user3 = self
   self.pathShape = hc:circle(x+.5, y+.5, 2)
   self.pathShape.user = "collider"
+
   self.clone = zombie.clone
   self.hit = zombie.hit
   self.update = zombie.update

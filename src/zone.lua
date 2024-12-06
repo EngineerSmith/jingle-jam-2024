@@ -176,6 +176,10 @@ zone.makeNoise = function(self, level, x, y)
   end
 end
 
+zone.forceBossSpawn = function(self)
+  self.boss = self.bossCell:spawnBoss(self.hc)
+end
+
 zone.update = function(self, dt)
   for _, cell in ipairs(self.cells) do
     cell:update(dt)
@@ -183,7 +187,14 @@ zone.update = function(self, dt)
   for _, z in ipairs(self.zombies) do
     z:update(dt, self.hc)
   end
-  self.bossCell:updateEgg(dt)
+  local boss = self.bossCell:updateEgg(dt, zone.hc)
+  if boss then
+    -- boss spawned
+    self.boss = boss
+  end
+  if self.boss then
+    self.boss:update(dt, self.hc)
+  end
 end
 
 zone.draw = function(self)
@@ -194,6 +205,9 @@ zone.draw = function(self)
     z:draw()
   end
   blood.draw(self.blood)
+  if self.boss then
+    self.boss:draw()
+  end
   self.bossCell:drawEgg()
 end
 

@@ -22,6 +22,7 @@ cell.clone = function(self)
   local newCell = cell.new()
   newCell.createCollider = self.createCollider
   newCell.update = self.update
+  newCell.spawnBoss = self.spawnBoss
   newCell.draw = self.draw
   return newCell
 end
@@ -34,9 +35,15 @@ cell.update = function(self, dt)
   -- implemented by cell
 end
 
-cell.updateEgg = function(self, dt)
+cell.updateEgg = function(self, dt, hc)
   self.eggTimer = self.eggTimer + dt
   eggShader:send("time", self.eggTimer/2)
+  -- if egg activated
+  -- self:spawnBoss(hc)
+end
+
+cell.spawnBoss = function(self, hc)
+  -- implemented by cell
 end
 
 cell.draw = function(self)
