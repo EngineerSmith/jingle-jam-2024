@@ -1,3 +1,6 @@
+local audioManager = require("util.audioManager")
+audioManager.setVolumeAll()
+
 local g3d = require("libs.g3d")
 local cam = g3d.camera:current()
 cam.fov = math.rad(50)

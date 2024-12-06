@@ -1,5 +1,7 @@
 local lg = love.graphics
 local g3d = require("libs.g3d")
+local audioManager = require("util.audioManager")
+local assetManager = require("util.assetManager")
 
 local blackTexture = lg.newImage("assets/black_tile.png")
 
@@ -29,7 +31,7 @@ local pistol_frames = {
 }
 local pistol_flash = lg.newImage("assets/character/player/player_pistol_flash.png")
 
-local batCooldown, batNoise, batDamage, batSizeW, batSizeH = 0.12, 5, 1.5, 0.4, 0.7
+local batCooldown, batNoise, batDamage, batSizeW, batSizeH = 0.2, 10, 1.5, 0.4, 0.7
 local bat_frames = {
   lg.newImage("assets/character/player/player_bat_000.png"),
   lg.newImage("assets/character/player/player_bat_001.png"),
@@ -49,15 +51,33 @@ local bat_swing = {
   lg.newImage("assets/character/player/player_bat_swing_005.png"),
 }
 
+local knifeCooldown, knifeNoise, knifeDamage, knifeSizeW, knifeSizeH = 0.1, 3, 3, 0.4, 0.5
+local knife_frames = {
+  lg.newImage("assets/character/player/player_knife_000.png"),
+  lg.newImage("assets/character/player/player_knife_001.png"),
+  lg.newImage("assets/character/player/player_knife_002.png"),
+  lg.newImage("assets/character/player/player_knife_003.png"),
+  lg.newImage("assets/character/player/player_knife_004.png"),
+  lg.newImage("assets/character/player/player_knife_005.png"),
+  lg.newImage("assets/character/player/player_knife_006.png"),
+  lg.newImage("assets/character/player/player_knife_007.png"),
+}
+local knife_swing = {
+  lg.newImage("assets/character/player/player_knife_swing_000.png"),
+  lg.newImage("assets/character/player/player_knife_swing_001.png"),
+  lg.newImage("assets/character/player/player_knife_swing_002.png"),
+  lg.newImage("assets/character/player/player_knife_swing_003.png"),
+}
+
 local character = require("src.character")
 local player = character.new()
 player.x, player.y = 0,0
 player.speed, player.size = 6, 0.3
 player.frame, player.timer = 1,0
 player.attackCooldown = 0
-player.attack = "bat" -- "pistol"
+player.attack = "knife" -- "bat", "knife", "pistol"
 
-player.frames = player.attack == "pistol" and pistol_frames or player.attack == "bat" and bat_frames or walk_frames
+player.frames = player.attack == "pistol" and pistol_frames or player.attack == "bat" and bat_frames or player.attack == "knife" and knife_frames or walk_frames
 
 player.setZone = function(zone, x, y)
   player.zone = zone
@@ -95,7 +115,7 @@ player.update = function(dt, zombies)
     end
   end
 
-  if player.state ~= "swing_bat" then
+  if player.state ~= "swing_bat" and player.state ~= "swing_knife" then
     if moved then
       player.state = "walk"
     else
@@ -111,12 +131,12 @@ player.update = function(dt, zombies)
     player.specialTexture = nil
   end
 
-  if player.rect then
-    local x, y = player.shape:center()
-    player.rect:moveTo(x, y)
-    player.rect:setRotation(player.shape:rotation(), x, y)
-    player.rect:moveTo(x-nx*batSizeH, y+ny*batSizeH)
-  end
+  -- if player.rect then
+  --   local x, y = player.shape:center()
+  --   player.rect:moveTo(x, y)
+  --   player.rect:setRotation(player.shape:rotation(), x, y)
+  --   player.rect:moveTo(x-nx*batSizeH, y+ny*batSizeH)
+  -- end
 
   if player.attack == "bat" then
     if input.baton:pressed("attack") then
@@ -128,8 +148,7 @@ player.update = function(dt, zombies)
         local x, y = player.shape:center()
         player.zone:makeNoise(batNoise, x, y)
 
-        player.rect = player.rect or player.hc:rectangle(0, 0, batSizeH*2, batSizeW)
-        local rect = player.rect
+        local rect = player.hc:rectangle(0, 0, batSizeH*2, batSizeW)
         rect.user = "collider"
         rect:moveTo(x, y)
         rect:setRotation(player.shape:rotation(), x, y)
@@ -139,13 +158,39 @@ player.update = function(dt, zombies)
             shape.user3:hit(batDamage, player.zone)
           end
         end
-        --player.hc:remove(rect)
+        player.hc:remove(rect)
+      end
+    end
+  elseif player.attack == "knife" then
+    if input.baton:pressed("attack") then
+      if player.attackCooldown == 0 then
+        player.attackCooldown = knifeCooldown
+        player.state = "swing_knife"
+        player.timer, player.frame = 0, 1
+
+        local x, y = player.shape:center()
+        player.zone:makeNoise(knifeNoise, x, y)
+
+        local rect = player.hc:rectangle(0, 0, knifeSizeH*2, knifeSizeW)
+        rect.user = "collider"
+        rect:moveTo(x, y)
+        rect:setRotation(player.shape:rotation(), x, y)
+        rect:moveTo(x-nx*knifeSizeH, y+ny*knifeSizeH)
+        for shape in pairs(player.hc:collisions(rect)) do
+          if shape.user == "character" and shape.user2 == "zombie" and shape.user3.health ~= 0 then
+            shape.user3:hit(knifeDamage, player.zone)
+          end
+        end
+        player.hc:remove(rect)
       end
     end
   elseif player.attack == "pistol" then
     if input.baton:pressed("attack") then
       if player.attackCooldown == 0 then
+        audioManager.play("weapon.pistol")
         player.attackCooldown = pistolCooldown
+        player.specialTexture = pistol_flash
+
         local x, y = player.shape:center()
         player.zone:makeNoise(pistolNoise, x, y)
 
@@ -192,6 +237,17 @@ player.update = function(dt, zombies)
         break
       end
     end
+  elseif player.state == "swing_knife" then
+    player.timer = player.timer + dt
+    while player.timer >= knifeCooldown/#knife_swing do
+      player.timer = player.timer - 0.06
+      player.frame = player.frame + 1
+      if player.frame > #knife_swing then
+        player.state = "idle"
+        player.timer, player.frame = 0, 1
+        break
+      end
+    end
   end
 end
 
@@ -203,6 +259,8 @@ player.draw = function()
     plane:setTexture(player.specialTexture)
   elseif player.state == "swing_bat" then
     plane:setTexture(bat_swing[player.frame])
+  elseif player.state == "swing_knife" then
+    plane:setTexture(knife_swing[player.frame])
   elseif player.state == "idle" then
     plane:setTexture(player.frames[1])
   elseif player.state == "walk" then

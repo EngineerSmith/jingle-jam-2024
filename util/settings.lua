@@ -52,6 +52,7 @@ local defaultSettings = {
         master = 0.8,
         music = 0.6,
         ui = 0.8,
+        sfx = 0.8,
       },
     },
   }

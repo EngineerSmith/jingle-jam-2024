@@ -29,6 +29,14 @@ return {
   { path = "audio/ui/rollover5.ogg", name = "audio.ui.select.2", sourceType = "static", audioType = "ui", key = "audio.ui.select", volume = .5 },
   { path = "audio/ui/click4.ogg", name = "audio.ui.click.1", sourceType = "static", audioType = "ui", key = "audio.ui.click", volume = 2.0 },
   { path = "audio/ui/click5.ogg", name = "audio.ui.click.2", sourceType = "static", audioType = "ui", key = "audio.ui.click", volume = 2.0 },
+  -- Weapon
+    -- Pistol
+  { path = "audio/weapon/pistol/Pistol Shot 1_Draft 1_Jingle Jam 24 Zombie_20241204.ogg", name = "weapon.pistol.1", sourceType = "static", audioType = "sfx", key = "weapon.pistol", volume = 1.0 },
+  { path = "audio/weapon/pistol/Pistol Shot 2_Draft 1_Jingle Jam 24 Zombie_20241204.ogg", name = "weapon.pistol.2", sourceType = "static", audioType = "sfx", key = "weapon.pistol", volume = 1.0 },
+  { path = "audio/weapon/pistol/Pistol Shot 3_Draft 1_Jingle Jam 24 Zombie_20241204.ogg", name = "weapon.pistol.3", sourceType = "static", audioType = "sfx", key = "weapon.pistol", volume = 1.0 },
+  { path = "audio/weapon/pistol/Pistol Shot 4_Draft 1_Jingle Jam 24 Zombie_20241204.ogg", name = "weapon.pistol.4", sourceType = "static", audioType = "sfx", key = "weapon.pistol", volume = 1.0 },
+  { path = "audio/weapon/pistol/Pistol Shot 5_Draft 1_Jingle Jam 24 Zombie_20241204.ogg", name = "weapon.pistol.5", sourceType = "static", audioType = "sfx", key = "weapon.pistol", volume = 1.0 },
+  { path = "audio/weapon/pistol/Pistol Shot 6_Draft 1_Jingle Jam 24 Zombie_20241204.ogg", name = "weapon.pistol.6", sourceType = "static", audioType = "sfx", key = "weapon.pistol", volume = 1.0 },
 -- Fonts
   { path = "fonts/Roboto_Mono/RobotoMono-Light.ttf",            name = "fonts.light" },
   { path = "fonts/Roboto_Mono/RobotoMono-LightItalic.ttf",      name = "fonts.light.italic" },
