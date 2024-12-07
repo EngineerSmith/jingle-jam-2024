@@ -53,6 +53,7 @@ local defaultSettings = {
         music = 0.6,
         ui = 0.8,
         sfx = 0.8,
+        zombie = 0.6,
       },
     },
   }

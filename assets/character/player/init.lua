@@ -106,6 +106,12 @@ player.setZone = function(zone, x, y)
   player.shape = player.hc:circle(player.x, player.y, player.size)
   player.shape.user = "character"
 
+  player.audioShape = player.hc:circle(player.x, player.y, 25)
+  player.audioShape.user = "collider"
+  player.audioShape.user2 = "playerListener"
+
+  player.audioZombieGroanTimer = 0
+
   player.health = 5
 end
 
@@ -123,7 +129,32 @@ end
 
 local Nx, Ny = 0, 0
 local input = require("util.input")
+local audioZombies = 0
 player.update = function(dt, allowInput)
+
+  player.audioZombieGroanTimer = player.audioZombieGroanTimer + dt
+  if player.audioZombieGroanTimer >= 1/math.sqrt(math.max(audioZombies, 1)) then
+    player.audioZombieGroanTimer = 0
+    audioZombies = 0
+    for other in pairs(player.hc:collisions(player.audioShape)) do
+      if other.user == "character" and other.user2 == "zombie" then
+        audioZombies = audioZombies + 1
+      end
+    end
+    --local chance = 0.5 + math.log(audioZombies + 1) * 0.08
+    local chance = 0.5
+    if audioZombies <= 10 then
+      chance =  chance + audioZombies * 0.02
+    else
+      chance = chance + math.exp((audioZombies-10) * 0.1) - 1
+    end
+    chance = math.max(math.min(chance, .9), 0)
+    for _ = 1, math.min(math.floor(audioZombies/3), 5) do
+      if love.math.random() >= chance then
+        audioManager.play("zombie.groan")
+      end
+    end
+  end
 
   local mx, my = love.mouse.getPosition()
   local cw, ch = love.graphics.getDimensions()
@@ -152,6 +183,7 @@ player.update = function(dt, allowInput)
       moved = moved or (vector.x ~= 0 or vector.y ~= 0)
     end
   end
+  player.audioShape:moveTo(player.shape:center())
 
   if player.state ~= "swing_bat" and player.state ~= "swing_knife" then
     if moved then
@@ -179,6 +211,7 @@ player.update = function(dt, allowInput)
     if player.attack == "bat" then
       if input.baton:pressed("attack") then
         if player.attackCooldown == 0 then
+          audioManager.play("weapon.bat")
           player.attackCooldown = player.weapons[player.weaponIndex].cooldown
           player.state = "swing_bat"
           player.timer, player.frame = 0, 1
@@ -191,10 +224,15 @@ player.update = function(dt, allowInput)
           rect:moveTo(x, y)
           rect:setRotation(player.shape:rotation(), x, y)
           rect:moveTo(x-nx*batSizeH, y+ny*batSizeH)
+          local hit = 0
           for shape in pairs(player.hc:collisions(rect)) do
-            if shape.user == "character" and shape.user2 == "zombie" and shape.user3.health ~= 0 then
+            if shape.user == "character" and (shape.user2 == "zombie" or shape.user2 == "boss") and shape.user3.health ~= 0 then
               shape.user3:hit(player.weapons[player.weaponIndex].damage, player.zone)
+              hit = hit + 1
             end
+          end
+          for _ = 1, math.min(hit, 2) do
+            audioManager.play("zombie.hit.bat")
           end
           player.hc:remove(rect)
         end
@@ -202,6 +240,7 @@ player.update = function(dt, allowInput)
     elseif player.attack == "knife" then
       if input.baton:pressed("attack") then
         if player.attackCooldown == 0 then
+          audioManager.play("weapon.knife")
           player.attackCooldown = player.weapons[player.weaponIndex].cooldown
           player.state = "swing_knife"
           player.timer, player.frame = 0, 1
@@ -214,10 +253,15 @@ player.update = function(dt, allowInput)
           rect:moveTo(x, y)
           rect:setRotation(player.shape:rotation(), x, y)
           rect:moveTo(x-nx*knifeSizeH, y+ny*knifeSizeH)
+          local hit = 0
           for shape in pairs(player.hc:collisions(rect)) do
-            if shape.user == "character" and shape.user2 == "zombie" and shape.user3.health ~= 0 then
+            if shape.user == "character" and (shape.user2 == "zombie" or shape.user2 == "boss") and shape.user3.health ~= 0 then
               shape.user3:hit(player.weapons[player.weaponIndex].damage, player.zone)
+              hit = hit + 1
             end
+          end
+          for _ = 1, math.min(hit, 2) do
+            audioManager.play("zombie.hit.knife")
           end
           player.hc:remove(rect)
         end
@@ -237,7 +281,8 @@ player.update = function(dt, allowInput)
           local dist, step = 0, .05
           while dist <= 20 do
             for shape in pairs(player.hc:collisions(bullet)) do
-              if shape.user == "character" and shape.user2 == "zombie" and shape.user3.health ~= 0 then
+              if shape.user == "character" and (shape.user2 == "zombie" or shape.user2 == "boss") and shape.user3.health ~= 0 then
+                audioManager.play("zombie.hit.bullet")
                 shape.user3:hit(player.weapons[player.weaponIndex].damage, player.zone)
                 goto breakOut
               end

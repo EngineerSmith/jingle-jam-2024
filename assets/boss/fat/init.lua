@@ -1,3 +1,4 @@
+local audioManager = require("util.audioManager")
 local g3d = require("libs.g3d")
 
 local plane = g3d.newModel("assets/boss/boss.obj")
@@ -57,7 +58,30 @@ boss.clone = function(hc, x, y)
 end
 
 boss.hit = function(self, damage, zone)
+  self.health = self.health - damage
+  local x, y = self.body:center()
+  local r = self.body:rotation()
+  if self.health <= 0 then
+    self.state = "dead"
+    self.health = 0
+    self.frame, self.timer = 1, 0
+    self.x, self.y = x, y
+    self.r = r
+    zone.hc:remove(self.body)
+    self.body = nil
+    zone.hc:remove(self.pathShape)
+    self.pathShape = nil
+    zone:addBlood(x, y, r, self.health == 0)
+    zone:addBlood(x, y, r, self.health == 0)
+  end
+  zone:addBlood(x, y, r, self.health == 0, 100, 100)
+  zone:addBlood(x, y, r, self.health == 0, 100, 100)
 
+  if self.health == 0 then
+    audioManager.play("zombie.death")
+  else
+    audioManager.play("zombie.grunt")
+  end
 end
 
 boss.move = function(self, dx, dy)
@@ -67,11 +91,17 @@ end
 
 local feelerStrength = 2.3
 local feelerPower = 1.05
-boss.update = function(self, dt, hc)
+boss.update = function(self, dt, hc, zone, player)
   if self.health ~= 0 then
     self.attackCooldown = self.attackCooldown - dt
     if self.attackCooldown <= 0 then
       self.attackCooldown = 0
+    end
+
+    if player and self.body:collidesWith(player.shape) and self.state == "attack_charge" and self.attackCooldown == 0 then
+      player.hit(1.5)
+      self.attackCooldown = 3
+      print(self.state)
     end
 
     if self.targetX and self.targetY then
@@ -132,13 +162,13 @@ boss.update = function(self, dt, hc)
         self.timer, self.frame = 0, 1
         self.lastAttack = 0
         self.attackCooldown = self.chargeCooldown
-      elseif distToTarget <= 1.5 and self.state ~= "attack_right" and self.state ~= "charging" and self.state ~= "attack_charge" and math.abs(rotationDiff) <= math.rad(20) then
+      elseif distToTarget <= 1.5 and self.state ~= "attack_right" and self.state ~= "charging" and self.state ~= "attack_charge" and math.abs(rotationDiff) <= math.rad(20) and self.lastAttack >= 0.4 then
         self.state = "attack_right"
         self.timer, self.frame = 0, 1
         self.lastAttack = 0
       elseif self.state ~= "attack_right" then
         self.body:rotate(rotationChange)
-        if math.abs(rotationDiff) <= math.rad(20) and self.state ~= "charging" and self.state ~= "attack_charge" then
+        if math.abs(rotationDiff) <= math.rad(20) and self.state ~= "charging" and self.state ~= "attack_charge" and distToTarget > 1.5 then
           self:move((mx/mag)*dt*self.speed, (my/mag)*dt*self.speed)
           self.state = "walk"
         end
@@ -146,13 +176,16 @@ boss.update = function(self, dt, hc)
     end
   end
 
-  for other, vector in pairs(hc:collisions(self.body)) do
-    if other.user == "building" or other.user == "egg" then
-      self:move(vector.x, vector.y)
-      if self.state == "attack_charge" then
-        self.state = "idle"
-        self.timer, self.frame = 0, 1
-        self.lastAttack = 0
+  if self.body then
+    for other, vector in pairs(hc:collisions(self.body)) do
+      if other.user == "building" or other.user == "egg" then
+        self:move(vector.x, vector.y)
+        if self.state == "attack_charge" then
+          self.state = "idle"
+          self.timer, self.frame = 0, 1
+          self.lastAttack = 0
+          self:hit(1, zone)
+        end
       end
     end
   end
@@ -175,12 +208,24 @@ boss.update = function(self, dt, hc)
   if looped and self.state == "attack_right" then
     self.state = "idle"
     self.frame = 1
+    self.lastAttack = 0
+    local px, py = player.shape:center()
+    local zx, zy = self.body:center()
+    local r = self.body:rotation()
+    zx, zy = -math.cos(r) + zx, -math.sin(r) + zy
+    if (px-zx)^2+(py-zy)^2 <= (1.5)^2 then
+      player.hit(1)
+    end
   end
 end
 
 boss.draw = function(self)
-  local x, y = self.body:center()
-  local r = self.body:rotation()
+  local x, y = self.x, self.y
+  local r = self.r
+  if self.body then
+    x, y = self.body:center()
+    r = self.body:rotation()
+  end
 
   plane:setTranslation(x, y, 0.11)
   plane:setRotation(0,0, r-math.rad(90))

@@ -1,3 +1,4 @@
+local audioManager = require("util.audioManager")
 local g3d = require("libs.g3d")
 
 local plane = g3d.newModel("assets/character/character.obj")
@@ -105,6 +106,12 @@ zombie.hit = function(self, damage, zone)
     self.pathShape = nil
   end
   zone:addBlood(x, y, r-math.rad(270), self.health == 0)
+
+  if self.health == 0 then
+    audioManager.play("zombie.death")
+  else
+    audioManager.play("zombie.grunt")
+  end
 end
 
 local feelerStrength = 2.3

@@ -29,6 +29,41 @@ return {
   { path = "audio/ui/rollover5.ogg", name = "audio.ui.select.2", sourceType = "static", audioType = "ui", key = "audio.ui.select", volume = .5 },
   { path = "audio/ui/click4.ogg", name = "audio.ui.click.1", sourceType = "static", audioType = "ui", key = "audio.ui.click", volume = 2.0 },
   { path = "audio/ui/click5.ogg", name = "audio.ui.click.2", sourceType = "static", audioType = "ui", key = "audio.ui.click", volume = 2.0 },
+  -- Zombie
+    -- Damage grunt
+  { path = "audio/zombie/damage/damage grunt/Damage Grunt 1_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "zombie.grunt.1", sourceType = "static", audioType = "sfx", key = "zombie.grunt", volume = 0.8 },
+  { path = "audio/zombie/damage/damage grunt/Damage Grunt 2_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "zombie.grunt.2", sourceType = "static", audioType = "sfx", key = "zombie.grunt", volume = 0.8 },
+  { path = "audio/zombie/damage/damage grunt/Damage Grunt 3_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "zombie.grunt.3", sourceType = "static", audioType = "sfx", key = "zombie.grunt", volume = 0.8 },
+    -- Death rattle
+  { path = "audio/zombie/damage/deathrattle/Deathrattle 1_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "zombie.death.1", sourceType = "static", audioType = "zombie", key = "zombie.death", volume = 1.0 },
+  { path = "audio/zombie/damage/deathrattle/Deathrattle 2_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "zombie.death.2", sourceType = "static", audioType = "zombie", key = "zombie.death", volume = 1.0 },
+  { path = "audio/zombie/damage/deathrattle/Deathrattle 3_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "zombie.death.3", sourceType = "static", audioType = "zombie", key = "zombie.death", volume = 1.0 },
+  { path = "audio/zombie/damage/deathrattle/Deathrattle 4_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "zombie.death.4", sourceType = "static", audioType = "zombie", key = "zombie.death", volume = 1.0 },
+    -- hit
+      -- Bullet
+  { path = "audio/zombie/damage/gore/bullet/Bullet Gore 1_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "zombie.hit.bullet.1", sourceType = "static", audioType = "sfx", key = "zombie.hit.bullet", volume = 0.6 },
+  { path = "audio/zombie/damage/gore/bullet/Bullet Gore 2_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "zombie.hit.bullet.2", sourceType = "static", audioType = "sfx", key = "zombie.hit.bullet", volume = 0.6 },
+  { path = "audio/zombie/damage/gore/bullet/Bullet Gore 3_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "zombie.hit.bullet.3", sourceType = "static", audioType = "sfx", key = "zombie.hit.bullet", volume = 0.6 },
+  { path = "audio/zombie/damage/gore/bullet/Bullet Gore 4_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "zombie.hit.bullet.4", sourceType = "static", audioType = "sfx", key = "zombie.hit.bullet", volume = 0.6 },
+      -- Bat
+  { path = "audio/zombie/damage/gore/bat/Bat Gore 1_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "zombie.hit.bat.1", sourceType = "static", audioType = "sfx", key = "zombie.hit.bat", volume = 1.0 },
+  { path = "audio/zombie/damage/gore/bat/Bat Gore 2_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "zombie.hit.bat.2", sourceType = "static", audioType = "sfx", key = "zombie.hit.bat", volume = 1.0 },
+  { path = "audio/zombie/damage/gore/bat/Bat Gore 3_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "zombie.hit.bat.3", sourceType = "static", audioType = "sfx", key = "zombie.hit.bat", volume = 1.0 },
+      -- Knife
+  { path = "audio/zombie/damage/gore/knife/Knife Gore 1_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "zombie.hit.knife.1", sourceType = "static", audioType = "sfx", key = "zombie.hit.knife", volume = 0.8 },
+  { path = "audio/zombie/damage/gore/knife/Knife Gore 2_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "zombie.hit.knife.2", sourceType = "static", audioType = "sfx", key = "zombie.hit.knife", volume = 0.8 },
+  { path = "audio/zombie/damage/gore/knife/Knife Gore 3_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "zombie.hit.knife.3", sourceType = "static", audioType = "sfx", key = "zombie.hit.knife", volume = 0.8 },
+  { path = "audio/zombie/damage/gore/knife/Knife Gore 4_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "zombie.hit.knife.4", sourceType = "static", audioType = "sfx", key = "zombie.hit.knife", volume = 0.8 },
+    -- Groan
+  { path = "audio/zombie/groans/Zombie Groan 1_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "zombie.groan.1", sourceType = "static", audioType = "zombie", key = "zombie.groan", volume = .35 },
+  { path = "audio/zombie/groans/Zombie Groan 2_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "zombie.groan.2", sourceType = "static", audioType = "zombie", key = "zombie.groan", volume = .35 },
+  { path = "audio/zombie/groans/Zombie Groan 3_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "zombie.groan.3", sourceType = "static", audioType = "zombie", key = "zombie.groan", volume = .35 },
+  { path = "audio/zombie/groans/Zombie Groan 4_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "zombie.groan.4", sourceType = "static", audioType = "zombie", key = "zombie.groan", volume = .35 },
+  { path = "audio/zombie/groans/Zombie Groan 5_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "zombie.groan.5", sourceType = "static", audioType = "zombie", key = "zombie.groan", volume = .35 },
+  { path = "audio/zombie/groans/Zombie Groan 6_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "zombie.groan.6", sourceType = "static", audioType = "zombie", key = "zombie.groan", volume = .35 },
+  { path = "audio/zombie/groans/Zombie Groan 7_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "zombie.groan.7", sourceType = "static", audioType = "zombie", key = "zombie.groan", volume = .35 },
+  { path = "audio/zombie/groans/Zombie Groan 8_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "zombie.groan.8", sourceType = "static", audioType = "zombie", key = "zombie.groan", volume = .35 },
+  { path = "audio/zombie/groans/Zombie Groan 9_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "zombie.groan.9", sourceType = "static", audioType = "zombie", key = "zombie.groan", volume = .35 },
   -- Weapon
     -- Pistol
   { path = "audio/weapon/pistol/Pistol Shot 1_Draft 1_Jingle Jam 24 Zombie_20241204.ogg", name = "weapon.pistol.1", sourceType = "static", audioType = "sfx", key = "weapon.pistol", volume = 1.0 },
@@ -37,6 +72,17 @@ return {
   { path = "audio/weapon/pistol/Pistol Shot 4_Draft 1_Jingle Jam 24 Zombie_20241204.ogg", name = "weapon.pistol.4", sourceType = "static", audioType = "sfx", key = "weapon.pistol", volume = 1.0 },
   { path = "audio/weapon/pistol/Pistol Shot 5_Draft 1_Jingle Jam 24 Zombie_20241204.ogg", name = "weapon.pistol.5", sourceType = "static", audioType = "sfx", key = "weapon.pistol", volume = 1.0 },
   { path = "audio/weapon/pistol/Pistol Shot 6_Draft 1_Jingle Jam 24 Zombie_20241204.ogg", name = "weapon.pistol.6", sourceType = "static", audioType = "sfx", key = "weapon.pistol", volume = 1.0 },
+    -- Bat
+  { path = "audio/weapon/melee/large slash/Large Slash 1_Draft 1_Jingle Jam 24 Zombie_20241206.ogg", name = "weapon.bat.1", sourceType = "static", audioType = "sfx", key = "weapon.bat", volume = 1.0 },
+  { path = "audio/weapon/melee/large slash/Large Slash 2_Draft 1_Jingle Jam 24 Zombie_20241206.ogg", name = "weapon.bat.2", sourceType = "static", audioType = "sfx", key = "weapon.bat", volume = 1.0 },
+  { path = "audio/weapon/melee/large slash/Large Slash 3_Draft 1_Jingle Jam 24 Zombie_20241206.ogg", name = "weapon.bat.3", sourceType = "static", audioType = "sfx", key = "weapon.bat", volume = 1.0 },
+  { path = "audio/weapon/melee/large slash/Large Slash 4_Draft 1_Jingle Jam 24 Zombie_20241206.ogg", name = "weapon.bat.4", sourceType = "static", audioType = "sfx", key = "weapon.bat", volume = 1.0 },
+    -- Knife
+  { path = "audio/weapon/melee/small slash/Small Slash 1_Draft 1_Jingle Jam 24 Zombie_20241206.ogg", name = "weapon.knife.1", sourceType = "static", audioType = "sfx", key = "weapon.knife", volume = 1.0 },
+  { path = "audio/weapon/melee/small slash/Small Slash 2_Draft 1_Jingle Jam 24 Zombie_20241206.ogg", name = "weapon.knife.2", sourceType = "static", audioType = "sfx", key = "weapon.knife", volume = 1.0 },
+  { path = "audio/weapon/melee/small slash/Small Slash 3_Draft 1_Jingle Jam 24 Zombie_20241206.ogg", name = "weapon.knife.3", sourceType = "static", audioType = "sfx", key = "weapon.knife", volume = 1.0 },
+  { path = "audio/weapon/melee/small slash/Small Slash 4_Draft 1_Jingle Jam 24 Zombie_20241206.ogg", name = "weapon.knife.4", sourceType = "static", audioType = "sfx", key = "weapon.knife", volume = 1.0 },
+  { path = "audio/weapon/melee/small slash/Small Slash 5_Draft 1_Jingle Jam 24 Zombie_20241206.ogg", name = "weapon.knife.5", sourceType = "static", audioType = "sfx", key = "weapon.knife", volume = 1.0 },
 -- Fonts
   { path = "fonts/Roboto_Mono/RobotoMono-Light.ttf",            name = "fonts.light" },
   { path = "fonts/Roboto_Mono/RobotoMono-LightItalic.ttf",      name = "fonts.light.italic" },

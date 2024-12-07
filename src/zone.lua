@@ -152,12 +152,12 @@ zone.new = function(cells, zombies, width, height)
   return self
 end
 
-zone.addBlood = function(self, x, y, r, isDead)
+zone.addBlood = function(self, x, y, r, isDead, i, j)
   local n = isDead and 2 or 0
   for _ = 1, love.math.random(3 + n, 5 + n) do
     table.insert(self.blood, blood.new(
-      x + love.math.random(-50,50)/55,
-      y + love.math.random(-50,50)/55,
+      x + love.math.random(-50,50)/55 + ( i and j and (love.math.random(-i,i)/j) or 0),
+      y + love.math.random(-50,50)/55 + ( i and j and (love.math.random(-i,i)/j) or 0),
       r + love.math.random() - .5))
   end
 end
@@ -187,13 +187,13 @@ zone.update = function(self, dt, player)
   for _, z in ipairs(self.zombies) do
     z:update(dt, self.hc, player)
   end
-  local boss = self.bossCell:updateEgg(dt, zone.hc)
+  local boss = self.bossCell:updateEgg(dt, self.hc)
   if boss then
     -- boss spawned
     self.boss = boss
   end
   if self.boss then
-    self.boss:update(dt, self.hc)
+    self.boss:update(dt, self.hc, self, player)
   end
 end
 

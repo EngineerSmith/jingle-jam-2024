@@ -86,10 +86,15 @@ audioManager.play = function(assetKey)
     logger.warn("Tried to play", assetKey, "but that asset hasn't been registered with the audio manager!")
     return
   end
-  if audioInfo.audioType == "ui" or audioInfo.audioType == "sfx" then
+  if audioInfo.audioType == "ui" or audioInfo.audioType == "sfx" or audioInfo.audioType == "zombie" then
     local s = audioInfo[love.math.random(1, #audioInfo)]
     s.asset:play()
     s.asset = s.asset:clone()
+  -- elseif audioInfo.audioType == "zombie" then
+  --   local s = audioInfo[love.math.random(1, #audioInfo)]
+  --   local a = s.asset
+  --   s.asset = s.asset:clone()
+  --   return a
   else
     logger.error("Add", audioInfo.audioType, "audioType to audiomanager.play")
     return audioInfo[1]
