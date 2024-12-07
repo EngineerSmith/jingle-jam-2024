@@ -75,7 +75,7 @@ player.x, player.y = 0,0
 player.speed, player.size = 6, 0.3
 player.frame, player.timer = 1,0
 player.attackCooldown = 0
-player.attack = "knife" -- "bat", "knife", "pistol"
+player.attack = "pistol" -- "bat", "knife", "pistol"
 
 player.frames = player.attack == "pistol" and pistol_frames or player.attack == "bat" and bat_frames or player.attack == "knife" and knife_frames or walk_frames
 

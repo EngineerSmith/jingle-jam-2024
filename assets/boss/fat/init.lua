@@ -30,12 +30,12 @@ boss.clone = function(hc, x, y)
   self.speed, self.rotationSpeed = 5.5, math.rad(220)
   self.state = "idle"
 
-  self.chargeCooldown, self.chargeTime = 10, 1.5
-  self.chargeDamage = 1.5
+  self.chargeCooldown = 2
+  self.chargeDamage, self.chargeSpeed = 1.5, 25
   self.isCharging = false
 
   self.timer, self.frame = 0, 1
-  self.cooldown = 0
+  self.cooldown, self.attackCooldown = 0, 0
   self.lastAttack = 0
 
   self.body = hc:circle(x, y, .4)
@@ -69,49 +69,76 @@ local feelerStrength = 2.3
 local feelerPower = 1.05
 boss.update = function(self, dt, hc)
   if self.health ~= 0 then
+    self.attackCooldown = self.attackCooldown - dt
+    if self.attackCooldown <= 0 then
+      self.attackCooldown = 0
+    end
+
     if self.targetX and self.targetY then
       self.lastAttack = self.lastAttack + dt
 
       local mx, my = 0, 0
       local distToTarget = 0
 
-      if self.state ~= "attack_right" and self.state ~= "charge" then
-        local x, y = self.body:center()
-        local dx, dy = self.targetX - x, self.targetY - y
-        distToTarget = math.sqrt(dx^2+dy^2)
-        
-        mx, my = mx + dx, my + dy
+      if self.state == "charging" and self.attackCooldown == 0 then
+        self.state = "attack_charge"
+        self.timer, self.frame = 0, 1
+        self.lastAttack = 0
+      end
 
-        local fx, fy = 0, 0
-        if distToTarget >= 2 then
-          for other, vector in pairs(hc:collisions(self.pathShape)) do
-            if other.user == "building" or other.user == "egg" then
-              local distToVec = math.sqrt(vector.x^2+vector.y^2)
-              local scaledForce = (feelerStrength * 1-math.min(distToTarget,1)) * distToVec^feelerPower
-              fx = fx + (vector.x * scaledForce)
-              fy = fy + (vector.y * scaledForce)
-            end
+      local x, y = self.body:center()
+      local dx, dy = self.targetX - x, self.targetY - y
+      distToTarget = math.sqrt(dx^2+dy^2)
+      
+      mx, my = mx + dx, my + dy
+
+      local fx, fy = 0, 0
+      if distToTarget >= 2 and self.state ~= "attack_right" and self.state ~= "charging" and self.state ~= "attack_charge" then
+        for other, vector in pairs(hc:collisions(self.pathShape)) do
+          if other.user == "building" or other.user == "egg" then
+            local distToVec = math.sqrt(vector.x^2+vector.y^2)
+            local scaledForce = (feelerStrength * 1-math.min(distToTarget,1)) * distToVec^feelerPower
+            fx = fx + (vector.x * scaledForce)
+            fy = fy + (vector.y * scaledForce)
           end
         end
-
-        mx, my = mx + fx, my + fy
       end
+
+      mx, my = mx + fx, my + fy
       
       local mag = math.sqrt(mx^2+my^2)
 
       local targetRotation = math.atan2(-my, -mx)
       local currentRotation = self.body:rotation()
 
-      local rotationDiff = math.atan2(math.sin(targetRotation - currentRotation), math.cos(targetRotation - currentRotation))
-      local rotationChange = math.min(math.max(-self.rotationSpeed*dt, rotationDiff), self.rotationSpeed*dt)
+      local rotationSpeed = self.state == "charging" and self.rotationSpeed/8 or self.rotationSpeed
 
-      if distToTarget <= 1.5 and self.state ~= "attack_right" and math.abs(rotationDiff) <= math.rad(20) then
+      local rotationDiff = math.atan2(math.sin(targetRotation - currentRotation), math.cos(targetRotation - currentRotation))
+      local rotationChange = math.min(math.max(-rotationSpeed*dt, rotationDiff), rotationSpeed*dt)
+
+      if self.state == "attack_charge" then
+        if self.lastAttack >= 0.6 then
+          self.state = "idle"
+          self.timer, self.frame = 0, 1
+          self.lastAttack = 0
+        else
+          local r = self.body:rotation()
+          local dx, dy = -math.cos(r), -math.sin(r)
+          self:move(dx*dt*self.chargeSpeed, dy*dt*self.chargeSpeed)
+        end
+      elseif self.state ~= "attack_right" and self.state ~= "charging" and self.state ~= "attack_charge" and self.attackCooldown == 0 and
+         (self.lastAttack >= 10 or (distToTarget >= 5 and self.lastAttack >= 5)) then
+        self.state = "charging"
+        self.timer, self.frame = 0, 1
+        self.lastAttack = 0
+        self.attackCooldown = self.chargeCooldown
+      elseif distToTarget <= 1.5 and self.state ~= "attack_right" and self.state ~= "charging" and self.state ~= "attack_charge" and math.abs(rotationDiff) <= math.rad(20) then
         self.state = "attack_right"
         self.timer, self.frame = 0, 1
         self.lastAttack = 0
       elseif self.state ~= "attack_right" then
         self.body:rotate(rotationChange)
-        if math.abs(rotationDiff) <= math.rad(20) then
+        if math.abs(rotationDiff) <= math.rad(20) and self.state ~= "charging" and self.state ~= "attack_charge" then
           self:move((mx/mag)*dt*self.speed, (my/mag)*dt*self.speed)
           self.state = "walk"
         end
@@ -122,6 +149,11 @@ boss.update = function(self, dt, hc)
   for other, vector in pairs(hc:collisions(self.body)) do
     if other.user == "building" or other.user == "egg" then
       self:move(vector.x, vector.y)
+      if self.state == "attack_charge" then
+        self.state = "idle"
+        self.timer, self.frame = 0, 1
+        self.lastAttack = 0
+      end
     end
   end
 
@@ -129,10 +161,11 @@ boss.update = function(self, dt, hc)
 
   local looped = false
   self.timer = self.timer + dt
-  while self.timer >= 0.1 do
-    self.timer = self.timer - 0.1
+  local animationSpeed = self.state == "attack_charge" and 0.02 or 0.1
+  while self.timer >= animationSpeed do
+    self.timer = self.timer - animationSpeed
     self.frame = self.frame + 1
-    local n = self.state == "walk" and #frames_walk or self.state == "attack_right" and #frames_attack_right or 1
+    local n = self.state == "walk" and #frames_walk or self.state == "attack_right" and #frames_attack_right or #frames_walk
     if self.frame > n then
       self.frame = 1
       looped = true

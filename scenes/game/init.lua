@@ -19,7 +19,7 @@ road.createColliders("city", zone.hc)
 zone:forceBossSpawn()
 
 local player = require("assets.character.player")
-player.setZone(zone, 0, -1)
+player.setZone(zone, 0, -5)
 
 local scene = {
   posX = 0, posY = 0, speed = 15
