@@ -70,6 +70,7 @@ end
 scene.load = function()
   scene.zone = require("src.zone").getZone("city")
   road.createColliders("city", scene.zone.hc)
+  scene.zone:forceBossSpawn()
 
   scene.player.setZone(scene.zone, 0, -5)
 
@@ -318,7 +319,7 @@ scene.draw = function()
       if scene.player.attackCooldown ~= 0 then
         lg.setColor(.8,0.2,0.3,1)
         if per > 0.05 then
-          lg.rectangle("fill", padding, padding*(1-per), squareSizePadded, squareSizePadded * per, 10)
+          lg.rectangle("fill", padding, padding+squareSizePadded*(1-per), squareSizePadded, squareSizePadded * per, 10)
         end
       end
       lg.setColor(1,1,.5,1)
