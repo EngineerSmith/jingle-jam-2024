@@ -62,6 +62,7 @@ zombie.clone = function(hc, x, y)
 
   self.timer, self.frame = 0, 1
   self.idleTimer, self.idleTimerTarget = 0, love.math.random(200, 500)/100
+  self.attackTimer = 0
 
   self.shape = hc:circle(x+.5, y+.5, .3)
   self.shape.user = "character"
@@ -108,15 +109,31 @@ end
 
 local feelerStrength = 2.3
 local feelerPower = 1.05
-zombie.update = function(self, dt, hc)
+zombie.update = function(self, dt, hc, player)
   if self.health ~= 0 then
+    if player and self.pathShape:collidesWith(player.shape) then
+      local px, py = player.shape:center()
+      local zx, zy = self.shape:center()
+      local dist2 = (px - zx)^2+(py - zy)^2
+      if dist2 <= 0.4^2 then
+        self.attackTimer = self.attackTimer + dt
+        if self.attackTimer >= 0.3 then
+          self.attackTimer = 0
+          player.hit(1)
+        end
+      else
+        self.attackTimer = 0
+      end
+    else
+      self.attackTimer = 0
+    end
     if self.targetX and self.targetY then
       local mx, my = 0, 0
 
       local x, y = self.shape:center()
       local dx, dy = self.targetX - x, self.targetY - y
       local distToTarget = math.sqrt(dx^2 + dy^2)
-      
+
       if distToTarget >= .3 then
         mx, my = mx + dx, my + dy
 

@@ -180,12 +180,12 @@ zone.forceBossSpawn = function(self)
   self.boss = self.bossCell:spawnBoss(self.hc)
 end
 
-zone.update = function(self, dt)
+zone.update = function(self, dt, player)
   for _, cell in ipairs(self.cells) do
     cell:update(dt)
   end
   for _, z in ipairs(self.zombies) do
-    z:update(dt, self.hc)
+    z:update(dt, self.hc, player)
   end
   local boss = self.bossCell:updateEgg(dt, zone.hc)
   if boss then

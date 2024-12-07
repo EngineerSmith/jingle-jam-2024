@@ -33,14 +33,14 @@ local weaponSets = {
     {
       type = "pistol",
       asset = "ui.weapon.pistol.silver",
-      cooldown = 1.0,
+      cooldown = 0.8,
       damage = 4.0,
       noise = 60.0,
     },
     {
       type = "bat",
       asset = "ui.weapon.bat",
-      cooldown = 1.0,
+      cooldown = 0.8,
       damage = 1.5,
       noise = 10.0,
     }
@@ -49,14 +49,14 @@ local weaponSets = {
     {
       type = "pistol",
       asset = "ui.weapon.pistol.gold",
-      cooldown = 0.5,
+      cooldown = 0.4,
       damage = 3.0,
       noise = 50.0,
     },
     {
       type = "knife",
       asset = "ui.weapon.knife",
-      cooldown = 1.0,
+      cooldown = 0.8,
       damage = 3.0,
       noise = 3,
     }
@@ -126,30 +126,27 @@ scene.update = function(dt)
         return
       end
     end
-  elseif scene.state == "game" then
-    if scene.zone and scene.player then
-      local tx, ty = scene.player.shape:center()
+  elseif scene.state == "game" and scene.zone and scene.player then
+    local tx, ty = scene.player.shape:center()
 
-      -- can zombie see player
-      for i = 1, #scene.zone.zombies do
-        local z = scene.zone.zombies[i]
-        if z.health > 0 then
-          local zx, zy = z.shape:center()
-          if (tx - zx)^2 + (ty - zy)^2 <= (8)^2 then
-            z.targetX, z.targetY = tx, ty
-            --zombie.reason = "vision"
-          end
+    -- can zombie see player
+    for i = 1, #scene.zone.zombies do
+      local z = scene.zone.zombies[i]
+      if z.health > 0 then
+        local zx, zy = z.shape:center()
+        if (tx - zx)^2 + (ty - zy)^2 <= (8)^2 then
+          z.targetX, z.targetY = tx, ty
+          --zombie.reason = "vision"
         end
       end
+    end
 
-      -- boss can ALWAYS see player
-      if scene.zone.boss then
-        scene.zone.boss.targetX, scene.zone.boss.targetY = tx, ty
-      end
+    -- boss can ALWAYS see player
+    if scene.zone.boss then
+      scene.zone.boss.targetX, scene.zone.boss.targetY = tx, ty
     end
-    if scene.zone then
-      scene.zone:update(dt)
-    end
+
+    scene.zone:update(dt, scene.player)
   end
   if scene.player then
     scene.player.update(dt, scene.state == "game")
@@ -341,10 +338,19 @@ end
 
 scene.wheelmoved = function(_, y)
   if y > 0 then
-    scene.player.setWeaponIndex(2)
+    scene.player.setWeaponIndex(1)
   end
   if y < 0 then
+    scene.player.setWeaponIndex(2)
+  end
+end
+
+scene.keypressed = function(_, key)
+  if key == "1" or key == "kp1" then
     scene.player.setWeaponIndex(1)
+  end
+  if key == "2" or key == "kp2" then
+    scene.player.setWeaponIndex(2)
   end
 end
 

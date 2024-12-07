@@ -2,6 +2,7 @@ local lg = love.graphics
 local g3d = require("libs.g3d")
 local audioManager = require("util.audioManager")
 local assetManager = require("util.assetManager")
+local logger = require("util.logger")
 
 local blackTexture = lg.newImage("assets/black_tile.png")
 
@@ -110,8 +111,9 @@ end
 
 player.hit = function(damage)
   player.health = player.health - damage
+  logger.info("Player hit for", damage, "damage!", player.health, "left!")
   if player.health <= 0 then
-    error("TODO Player death handle")
+    logger.warn("TODO Player death handle")
     player.health = 0
   end
   local x, y = player.shape:center()
@@ -265,7 +267,7 @@ player.update = function(dt, allowInput)
     end
   elseif player.state == "swing_bat" then
     player.timer = player.timer + dt
-    while player.timer >= (player.weapons[player.weaponIndex].cooldown/4)/#bat_swing do
+    while player.timer >= (0.15)/#bat_swing do
       player.timer = player.timer - 0.06
       player.frame = player.frame + 1
       if player.frame > #bat_swing then
@@ -276,7 +278,7 @@ player.update = function(dt, allowInput)
     end
   elseif player.state == "swing_knife" then
     player.timer = player.timer + dt
-    while player.timer >= (player.weapons[player.weaponIndex].cooldown/4)/#knife_swing do
+    while player.timer >= (0.15)/#knife_swing do
       player.timer = player.timer - 0.06
       player.frame = player.frame + 1
       if player.frame > #knife_swing then
