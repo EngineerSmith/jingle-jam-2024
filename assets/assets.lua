@@ -56,6 +56,11 @@ return {
   -- Cursor
   { path = "UI/cursor/navigation_e.png", name = "ui.cursor.navigation.east" },
   { path = "UI/cursor/navigation_w.png", name = "ui.cursor.navigation.west" },
+  -- Weapons
+  { path = "UI/weapon/bat.png", name = "ui.weapon.bat", onLoad = filterNearest },
+  { path = "UI/weapon/knife.png", name = "ui.weapon.knife", onLoad = filterNearest },
+  { path = "UI/weapon/pistol_gold.png", name = "ui.weapon.pistol.gold", onLoad = filterNearest },
+  { path = "UI/weapon/pistol_silver.png", name = "ui.weapon.pistol.silver", onLoad = filterNearest },
 -- Input
   -- Digit
   { path = "UI/input/pc/keyboard_0_outline.png", name = "input.pc.0", onLoad = filterLinear },

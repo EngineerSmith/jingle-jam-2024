@@ -18,7 +18,6 @@ local walk_frames = {
   lg.newImage("assets/character/player/player_007.png"),
 }
 
-local pistolCooldown, pistolNoise, pistolDamage = 0.2, 40, 3
 local pistol_frames = {
   lg.newImage("assets/character/player/player_pistol_000.png"),
   lg.newImage("assets/character/player/player_pistol_001.png"),
@@ -31,7 +30,7 @@ local pistol_frames = {
 }
 local pistol_flash = lg.newImage("assets/character/player/player_pistol_flash.png")
 
-local batCooldown, batNoise, batDamage, batSizeW, batSizeH = 0.2, 10, 1.5, 0.4, 0.7
+local batSizeW, batSizeH = 0.4, 0.7
 local bat_frames = {
   lg.newImage("assets/character/player/player_bat_000.png"),
   lg.newImage("assets/character/player/player_bat_001.png"),
@@ -51,7 +50,7 @@ local bat_swing = {
   lg.newImage("assets/character/player/player_bat_swing_005.png"),
 }
 
-local knifeCooldown, knifeNoise, knifeDamage, knifeSizeW, knifeSizeH = 0.1, 3, 3, 0.4, 0.5
+local knifeSizeW, knifeSizeH = 0.4, 0.5
 local knife_frames = {
   lg.newImage("assets/character/player/player_knife_000.png"),
   lg.newImage("assets/character/player/player_knife_001.png"),
@@ -75,9 +74,29 @@ player.x, player.y = 0,0
 player.speed, player.size = 6, 0.3
 player.frame, player.timer = 1,0
 player.attackCooldown = 0
-player.attack = "pistol" -- "bat", "knife", "pistol"
-
+player.attack = "bat" -- "bat", "knife", "pistol"
 player.frames = player.attack == "pistol" and pistol_frames or player.attack == "bat" and bat_frames or player.attack == "knife" and knife_frames or walk_frames
+
+player.setWeapons = function(weapons)
+  player.weapons = weapons
+  -- for k, v in pairs(player.weapons) do
+  --   print(k, v)
+  --   if type(v) == "table" then
+  --     for k, v in pairs(v) do
+  --       print(">", k, v)
+  --     end
+  --   end
+  -- end
+  player.setWeaponIndex(1)
+end
+
+player.setWeaponIndex = function(index)
+  if index < 1 then index = 1 end
+  if index > 2 then index = 2 end
+  player.weaponIndex = index
+  player.attack = player.weapons[index].type
+  player.frames = player.attack == "pistol" and pistol_frames or player.attack == "bat" and bat_frames or player.attack == "knife" and knife_frames or walk_frames
+end
 
 player.setZone = function(zone, x, y)
   player.zone = zone
@@ -85,11 +104,24 @@ player.setZone = function(zone, x, y)
   player.hc = zone.hc
   player.shape = player.hc:circle(player.x, player.y, player.size)
   player.shape.user = "character"
+
+  player.health = 5
+end
+
+player.hit = function(damage)
+  player.health = player.health - damage
+  if player.health <= 0 then
+    error("TODO Player death handle")
+    player.health = 0
+  end
+  local x, y = player.shape:center()
+  local r = player.shape:rotation()
+  player.zone:addBlood(x, y, r, player.health == 0)
 end
 
 local Nx, Ny = 0, 0
 local input = require("util.input")
-player.update = function(dt, zombies)
+player.update = function(dt, allowInput)
 
   local mx, my = love.mouse.getPosition()
   local cw, ch = love.graphics.getDimensions()
@@ -104,7 +136,10 @@ player.update = function(dt, zombies)
   local angle = math.atan2(ny*-1, nx)
   player.shape:setRotation(angle)
 
-  local x, y = input.baton:get("move")
+  local x, y = 0, 0
+  if allowInput then
+    x, y = input.baton:get("move")
+  end
   player.shape:move(x * player.speed * dt, y * player.speed * dt)
   local moved = x ~= 0 or y ~= 0
 
@@ -128,7 +163,7 @@ player.update = function(dt, zombies)
   if player.attackCooldown <= 0 then
     player.attackCooldown = 0
   end
-  if player.specialTexture == pistol_flash and player.attackCooldown <= pistolCooldown-0.1 then
+  if player.specialTexture == pistol_flash and player.attackCooldown <= player.weapons[player.weaponIndex].cooldown-0.1 then
     player.specialTexture = nil
   end
 
@@ -138,80 +173,81 @@ player.update = function(dt, zombies)
   --   player.rect:setRotation(player.shape:rotation(), x, y)
   --   player.rect:moveTo(x-nx*batSizeH, y+ny*batSizeH)
   -- end
+  if allowInput then
+    if player.attack == "bat" then
+      if input.baton:pressed("attack") then
+        if player.attackCooldown == 0 then
+          player.attackCooldown = player.weapons[player.weaponIndex].cooldown
+          player.state = "swing_bat"
+          player.timer, player.frame = 0, 1
 
-  if player.attack == "bat" then
-    if input.baton:pressed("attack") then
-      if player.attackCooldown == 0 then
-        player.attackCooldown = batCooldown
-        player.state = "swing_bat"
-        player.timer, player.frame = 0, 1
+          local x, y = player.shape:center()
+          player.zone:makeNoise(player.weapons[player.weaponIndex].noise, x, y)
 
-        local x, y = player.shape:center()
-        player.zone:makeNoise(batNoise, x, y)
-
-        local rect = player.hc:rectangle(0, 0, batSizeH*2, batSizeW)
-        rect.user = "collider"
-        rect:moveTo(x, y)
-        rect:setRotation(player.shape:rotation(), x, y)
-        rect:moveTo(x-nx*batSizeH, y+ny*batSizeH)
-        for shape in pairs(player.hc:collisions(rect)) do
-          if shape.user == "character" and shape.user2 == "zombie" and shape.user3.health ~= 0 then
-            shape.user3:hit(batDamage, player.zone)
-          end
-        end
-        player.hc:remove(rect)
-      end
-    end
-  elseif player.attack == "knife" then
-    if input.baton:pressed("attack") then
-      if player.attackCooldown == 0 then
-        player.attackCooldown = knifeCooldown
-        player.state = "swing_knife"
-        player.timer, player.frame = 0, 1
-
-        local x, y = player.shape:center()
-        player.zone:makeNoise(knifeNoise, x, y)
-
-        local rect = player.hc:rectangle(0, 0, knifeSizeH*2, knifeSizeW)
-        rect.user = "collider"
-        rect:moveTo(x, y)
-        rect:setRotation(player.shape:rotation(), x, y)
-        rect:moveTo(x-nx*knifeSizeH, y+ny*knifeSizeH)
-        for shape in pairs(player.hc:collisions(rect)) do
-          if shape.user == "character" and shape.user2 == "zombie" and shape.user3.health ~= 0 then
-            shape.user3:hit(knifeDamage, player.zone)
-          end
-        end
-        player.hc:remove(rect)
-      end
-    end
-  elseif player.attack == "pistol" then
-    if input.baton:pressed("attack") then
-      if player.attackCooldown == 0 then
-        audioManager.play("weapon.pistol")
-        player.attackCooldown = pistolCooldown
-        player.specialTexture = pistol_flash
-
-        local x, y = player.shape:center()
-        player.zone:makeNoise(pistolNoise, x, y)
-
-        local bullet = player.hc:point(x, y)
-        bullet:move(-nx*player.size, ny*player.size)
-        local dist, step = 0, .05
-        while dist <= 20 do
-          for shape in pairs(player.hc:collisions(bullet)) do
+          local rect = player.hc:rectangle(0, 0, batSizeH*2, batSizeW)
+          rect.user = "collider"
+          rect:moveTo(x, y)
+          rect:setRotation(player.shape:rotation(), x, y)
+          rect:moveTo(x-nx*batSizeH, y+ny*batSizeH)
+          for shape in pairs(player.hc:collisions(rect)) do
             if shape.user == "character" and shape.user2 == "zombie" and shape.user3.health ~= 0 then
-              shape.user3:hit(pistolDamage, player.zone)
-              goto breakOut
-            end
-            if shape.user == "building" or shape.user == "egg" then
-              goto breakOut
+              shape.user3:hit(player.weapons[player.weaponIndex].damage, player.zone)
             end
           end
-          bullet:move(-nx*step, ny*step)
-          dist = dist + step
+          player.hc:remove(rect)
         end
-        ::breakOut::
+      end
+    elseif player.attack == "knife" then
+      if input.baton:pressed("attack") then
+        if player.attackCooldown == 0 then
+          player.attackCooldown = player.weapons[player.weaponIndex].cooldown
+          player.state = "swing_knife"
+          player.timer, player.frame = 0, 1
+
+          local x, y = player.shape:center()
+          player.zone:makeNoise(player.weapons[player.weaponIndex].noise, x, y)
+
+          local rect = player.hc:rectangle(0, 0, knifeSizeH*2, knifeSizeW)
+          rect.user = "collider"
+          rect:moveTo(x, y)
+          rect:setRotation(player.shape:rotation(), x, y)
+          rect:moveTo(x-nx*knifeSizeH, y+ny*knifeSizeH)
+          for shape in pairs(player.hc:collisions(rect)) do
+            if shape.user == "character" and shape.user2 == "zombie" and shape.user3.health ~= 0 then
+              shape.user3:hit(player.weapons[player.weaponIndex].damage, player.zone)
+            end
+          end
+          player.hc:remove(rect)
+        end
+      end
+    elseif player.attack == "pistol" then
+      if input.baton:pressed("attack") then
+        if player.attackCooldown == 0 then
+          audioManager.play("weapon.pistol")
+          player.attackCooldown = player.weapons[player.weaponIndex].cooldown
+          player.specialTexture = pistol_flash
+
+          local x, y = player.shape:center()
+          player.zone:makeNoise(player.weapons[player.weaponIndex].noise, x, y)
+
+          local bullet = player.hc:point(x, y)
+          bullet:move(-nx*player.size, ny*player.size)
+          local dist, step = 0, .05
+          while dist <= 20 do
+            for shape in pairs(player.hc:collisions(bullet)) do
+              if shape.user == "character" and shape.user2 == "zombie" and shape.user3.health ~= 0 then
+                shape.user3:hit(player.weapons[player.weaponIndex].damage, player.zone)
+                goto breakOut
+              end
+              if shape.user == "building" or shape.user == "egg" then
+                goto breakOut
+              end
+            end
+            bullet:move(-nx*step, ny*step)
+            dist = dist + step
+          end
+          ::breakOut::
+        end
       end
     end
   end
@@ -229,7 +265,7 @@ player.update = function(dt, zombies)
     end
   elseif player.state == "swing_bat" then
     player.timer = player.timer + dt
-    while player.timer >= batCooldown/#bat_swing do
+    while player.timer >= (player.weapons[player.weaponIndex].cooldown/4)/#bat_swing do
       player.timer = player.timer - 0.06
       player.frame = player.frame + 1
       if player.frame > #bat_swing then
@@ -240,7 +276,7 @@ player.update = function(dt, zombies)
     end
   elseif player.state == "swing_knife" then
     player.timer = player.timer + dt
-    while player.timer >= knifeCooldown/#knife_swing do
+    while player.timer >= (player.weapons[player.weaponIndex].cooldown/4)/#knife_swing do
       player.timer = player.timer - 0.06
       player.frame = player.frame + 1
       if player.frame > #knife_swing then

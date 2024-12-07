@@ -96,11 +96,11 @@ zone.getZone = function(type)
   local newZone = zone.new(cells, zombies, width, height)
 
   for _, cell in ipairs(cells) do
-    local minX, maxX = cell.spawnX, cell.spawnX+ cell.spawnW
+    local minX, maxX = cell.spawnX, cell.spawnX + cell.spawnW
     local minY, maxY = cell.spawnY, cell.spawnY + cell.spawnH
     if not cell.boss then
-      for _ = 1, love.math.random(15, 20) do
-        for _ = 1, 5 do -- try X times to find a spawn point, per zombie
+      for _ = 1, love.math.random(25, 30) do
+        for _ = 1, 7 do -- try X times to find a spawn point, per zombie
           local rx, ry = love.math.random(minX, maxX), love.math.random(minY, maxY)
           local hit = false
           for shape in pairs(newZone.hc:shapesAt(rx, ry)) do
@@ -110,7 +110,7 @@ zone.getZone = function(type)
             end
           end
           if not hit then
-            for _ = 1, love.math.random(3,6) do
+            for _ = 1, love.math.random(4,7) do
               local zx, zy = love.math.random(-3, 3)+rx, love.math.random(-3, 3)+ry
               local hit = false
               for shape in pairs(newZone.hc:shapesAt(rx, ry)) do

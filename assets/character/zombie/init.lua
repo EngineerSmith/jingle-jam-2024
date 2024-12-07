@@ -61,7 +61,7 @@ zombie.clone = function(hc, x, y)
   self.health = 3
 
   self.timer, self.frame = 0, 1
-  self.idleTimer, self.idleTimerTarget = 0, love.math.random(20, 50)/10
+  self.idleTimer, self.idleTimerTarget = 0, love.math.random(200, 500)/100
 
   self.shape = hc:circle(x+.5, y+.5, .3)
   self.shape.user = "character"
