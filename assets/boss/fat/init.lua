@@ -284,6 +284,7 @@ boss.draw = function(self)
   if self.state == "attack_right" then
     plane:setTexture(frames_attack_right[self.frame])
   elseif self.state == "dead" then
+    plane:setTranslation(x, y, 0.09)
     plane:setTexture(frames_death[self.frame])
   else
     plane:setTexture(frames_walk[self.frame])

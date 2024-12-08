@@ -319,7 +319,7 @@ scene.draw = function()
         local text = "Press E to spawn boss"
         local w = lg.getFont():getWidth(text)
         lg.translate(-w/2, 0)
-        lg.setColor(0,0,0,a)
+        lg.setColor(.1,.1,.1,a)
         local n = 1.95*scene.scale
         lg.print(text, -n, 0)
         lg.print(text, -n, n)
@@ -400,6 +400,23 @@ scene.draw = function()
       lg.draw(w2, padding*2, padding*2, 0, 4*scene.scale)
     end
     lg.pop()
+    lg.translate(0, squareSize)
+    -- health
+    local full, half, empty = assetManager["ui.health.full"], assetManager["ui.health.half"], assetManager["ui.health.empty"]
+    if full and half and empty then
+      local s = 2*scene.scale
+      local padding = s/2
+      lg.translate(-4*(full:getWidth()+padding)*s, 7*s)
+      for i = 1, 6 do
+        local heart = full
+        if scene.player.health == i-0.5 then
+          heart = half
+        elseif scene.player.health < i then
+          heart = empty
+        end
+        lg.draw(heart, (i*(full:getWidth()+padding))*s,0, 0, s)
+      end
+    end
     lg.pop()
 
     lg.pop()

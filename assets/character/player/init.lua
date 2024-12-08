@@ -119,7 +119,13 @@ player.setZone = function(zone, x, y)
   player.health = 6
 end
 
+local hittimer = 0
 player.hit = function(damage, type)
+  if hittimer > 0 then
+    logger.info("Tried hitting the player! Timer immune")
+    return
+  end
+  hittimer = 0.5
   player.health = player.health - damage
   if damage > 0 then
     if type == "zombie" then
@@ -142,6 +148,7 @@ local Nx, Ny = 0, 0
 local input = require("util.input")
 local audioZombies = 0
 player.update = function(dt, allowInput)
+  hittimer = hittimer - dt
 
   player.audioZombieGroanTimer = player.audioZombieGroanTimer + dt
   if player.audioZombieGroanTimer >= 1/math.sqrt(math.max(audioZombies, 1)) then
