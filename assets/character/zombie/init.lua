@@ -126,7 +126,7 @@ zombie.update = function(self, dt, hc, player)
         self.attackTimer = self.attackTimer + dt
         if self.attackTimer >= 0.3 then
           self.attackTimer = 0
-          player.hit(1)
+          player.hit(1, "zombie")
         end
       else
         self.attackTimer = 0

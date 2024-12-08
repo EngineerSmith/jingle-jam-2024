@@ -121,7 +121,7 @@ boss.update = function(self, dt, hc, zone, player)
     end
 
     if player and self.body:collidesWith(player.shape) and self.state == "attack_charge" and self.attackCooldown == 0 then
-      player.hit(1.5)
+      player.hit(1.5, "boss")
       self.attackCooldown = 3
       print(self.state)
     end
@@ -254,7 +254,7 @@ boss.update = function(self, dt, hc, zone, player)
     local r = self.body:rotation()
     zx, zy = -math.cos(r) + zx, -math.sin(r) + zy
     if (px-zx)^2+(py-zy)^2 <= (1.5)^2 then
-      player.hit(1)
+      player.hit(1, "boss")
     end
   end
 end

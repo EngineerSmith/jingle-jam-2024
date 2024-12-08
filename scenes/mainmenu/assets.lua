@@ -17,6 +17,7 @@ return {
   "zombie.hit.bat",
   "zombie.hit.knife",
   "player.footsteps",
+  "player.hurt.zombie",
   "player.hurt",
   "boss.attack.slam",
   "boss.attack.charge",

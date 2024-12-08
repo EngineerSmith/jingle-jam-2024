@@ -13,6 +13,7 @@ return {
 -- Audio
   -- player
   "player.footsteps",
+  "player.hurt.zombie",
   "player.hurt",
   -- boss
   "boss.attack.slam",

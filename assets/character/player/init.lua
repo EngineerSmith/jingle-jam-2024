@@ -119,10 +119,14 @@ player.setZone = function(zone, x, y)
   player.health = 5
 end
 
-player.hit = function(damage)
+player.hit = function(damage, type)
   player.health = player.health - damage
   if damage > 0 then
-    audioManager.play("player.hurt")
+    if type == "zombie" then
+      audioManager.play("player.hurt.zombie")
+    else
+      audioManager.play("player.hurt")
+    end
   end
   logger.info("Player hit for", damage, "damage!", player.health, "left!")
   if player.health <= 0 then
