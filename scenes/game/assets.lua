@@ -37,4 +37,10 @@ return {
   "weapon.pistol",
   "weapon.bat",
   "weapon.knife",
+
+-- preload
+  "ui.logoES",
+  "ui.3slice.basic",
+  "audio.ui.select",
+  "audio.ui.click",
 }

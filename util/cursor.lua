@@ -28,6 +28,10 @@ if isCursorSupported then
       lm.newCursor("assets/UI/cursor/x1/hand_point_n.png", 14, 1),
       lm.newCursor("assets/UI/cursor/x2/hand_point_n.png", 28, 1),
     }
+    c["crosshair"] = {
+      lm.newCursor("assets/UI/cursor/x1/crosshair010.png", 16, 16),
+      lm.newCursor("assets/UI/cursor/x2/crosshair010.png", 32, 32),
+    }
   end
 end
 

@@ -46,7 +46,7 @@ local boss = character.new()
 
 boss.clone = function(hc, x, y)
   local self = character.new()
-  self.health = 50
+  self.health = 120
   self.speed, self.rotationSpeed = 5.5, math.rad(220)
   self.state = "idle"
 

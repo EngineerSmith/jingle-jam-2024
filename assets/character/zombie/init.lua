@@ -58,7 +58,7 @@ zombie.clone = function(hc, x, y)
   local self = character.new()
   self.state = "idle"
 
-  self.speed = love.math.random(45, 55)/10
+  self.speed = love.math.random(45, 60)/10
   self.health = 3
 
   self.timer, self.frame = 0, 1
@@ -126,7 +126,7 @@ zombie.update = function(self, dt, hc, player)
         self.attackTimer = self.attackTimer + dt
         if self.attackTimer >= 0.3 then
           self.attackTimer = 0
-          player.hit(1, "zombie")
+          player.hit(0.5, "zombie")
         end
       else
         self.attackTimer = 0
@@ -247,11 +247,7 @@ zombie.draw = function(self)
   elseif self.state == "walk" then
     plane:setTexture(self.frames[self.frame])
   end
-  if self.health == 0 then
-    --  lg.setColor(1,0,0) --todo make onhit
-  end
   plane:draw()
-  lg.setColor(1,1,1)
 end
 
 return zombie

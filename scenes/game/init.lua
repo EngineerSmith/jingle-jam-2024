@@ -23,9 +23,6 @@ local road = require("src.road")
 
 local scene = {
   posX = 0, posY = 0,
-  state = "menu", -- game
-  zone = nil,
-  player = require("assets.character.player"),
 }
 
 local weaponSets = {
@@ -34,8 +31,8 @@ local weaponSets = {
       type = "pistol",
       asset = "ui.weapon.pistol.silver",
       cooldown = 0.8,
-      damage = 4.0,
-      noise = 60.0,
+      damage = 5.0,
+      noise = 45.0,
     },
     {
       type = "bat",
@@ -51,7 +48,7 @@ local weaponSets = {
       asset = "ui.weapon.pistol.gold",
       cooldown = 0.4,
       damage = 3.0,
-      noise = 50.0,
+      noise = 30.0,
     },
     {
       type = "knife",
@@ -68,16 +65,41 @@ local updateCamera = function()
 end
 
 local humanity = 0
+local menuHighlight = "none"
+local waitTimer, deathTimer, deathBossTimer = 0, 0, 0
+local humanityTimer, humanityFlip = 0, true
+local menuTimer = 0
+scene.load = function(restart)
+  cursor.switch("crosshair")
 
-scene.load = function()
+  if not restart then
+    scene.state = "menu"
+    scene.player = require("assets.character.player")
+  end
+  scene.createNewZone(restart)
+end
+
+scene.unload = function()
+  cursor.switch("arrow")
+end
+
+scene.createNewZone = function(isNextLevel)
   scene.zone = require("src.zone").getZone("city")
   road.createColliders("city", scene.zone.hc)
 
   scene.player.setZone(scene.zone, 0, -5)
 
   updateCamera()
-
-  humanity = 0
+  
+  if not isNextLevel then
+    humanity = 0
+    humanityTimer, humanityFlip = 0, true
+    menuHighlight = "none"
+    waitTimer = 0
+    deathTimer = 0
+    menuTimer = 0
+  end
+  deathBossTimer = 0
 end
 
 scene.resize = function(w, h)
@@ -103,10 +125,6 @@ scene.resize = function(w, h)
   cam:updateProjectionMatrix()
 end
 
-local menuHighlight = "none"
-
-local waitTimer = 0
-local humanityTimer, humanityFlip = 0, true
 scene.update = function(dt)
   love.mouse.setRelativeMode(false)
   love.mouse.setVisible(true)
@@ -131,6 +149,25 @@ scene.update = function(dt)
       end
     end
   elseif scene.state == "game" and scene.zone and scene.player then
+    menuTimer = menuTimer + dt
+    if scene.player.health == 0 then
+      deathTimer = deathTimer + dt
+      if deathTimer >= 1.5 then
+        if input.baton:pressed("attack") then
+          require("util.sceneManager").changeScene("scenes.mainmenu")
+        end
+      end
+      goto bottom
+    elseif scene.zone.boss and scene.zone.boss.health == 0 then
+      scene.zone:update(dt, scene.player)
+      deathBossTimer = deathBossTimer + dt
+      if deathBossTimer >= 3 then
+        if input.baton:pressed("attack") then
+          scene.load("restart")
+        end
+      end
+      goto bottom
+    end
     local tx, ty = scene.player.shape:center()
 
     -- can zombie see player
@@ -168,9 +205,10 @@ scene.update = function(dt)
         scene.zone:forceBossSpawn()
       end
     end
+    ::bottom::
   end
   if scene.player then
-    local killedZombies = scene.player.update(dt, scene.state == "game")
+    local killedZombies = scene.player.update(dt, scene.state == "game" and menuTimer >= 0.5, deathTimer)
     scene.posX, scene.posY = scene.player.shape:center()
     updateCamera()
 
@@ -184,8 +222,13 @@ scene.draw = function()
   -- WORLD
   lg.origin()
   if scene.zone then
+    lg.push("all")
+    if scene.player.health == 0 then
+      lg.setColor(0,0,0,math.min(deathTimer,1))
+    end
     road.draw("city")
-    scene.zone:draw()
+    scene.zone:draw(deathTimer)
+    lg.pop()
   end
   if scene.player then
     scene.player.draw()
@@ -242,7 +285,7 @@ scene.draw = function()
     lg.printf(lang.getText("game.weaponset.left.text"), font, 0, 0, innerRectangleWidth, "left")
     lg.pop()
     lg.pop()
--- Right
+    -- Right
     lg.push("all")
     lg.rectangle("fill", (tw/2)*scene.scale+padding, padding, rectangleWidth, rectangleHeight, 10)
     if menuHighlight == "right" then
@@ -291,6 +334,41 @@ scene.draw = function()
     lg.setColor(1,1,1,1)
     lg.push("all")
 
+    if scene.player.health == 0 then
+      lg.setColor(1,1,1,1)
+      scene.player:draw()
+      lg.pop()
+      lg.translate(widthOffset/2, heightOffset/2)
+      lg.translate((tw*scene.scale)/2, (th*scene.scale)/4)
+      lg.setColor(.8,.3,.3,math.min(deathTimer-1), 0)
+      local font = ui.getFont(24, "fonts.regular.bold", scene.scale)
+      local text = "You died!"
+      lg.print(text, font, -font:getWidth(text)/2, 0)
+      lg.translate(0, font:getHeight()*1.1)
+      lg.setColor(1,1,1,math.min(deathTimer-2), 0)
+      local font = ui.getFont(16, "fonts.regular.bold", scene.scale)
+      local text = "Click to return to main menu!"
+      lg.print(text, font, -font:getWidth(text)/2, 0)
+      goto deathSkip
+    elseif scene.zone.boss and scene.zone.boss.health == 0 then
+      local boss = scene.zone.boss
+      lg.setColor(0,0,0,.5)
+      lg.rectangle("fill", 0,0, lg.getDimensions())
+      lg.pop()
+      lg.translate(widthOffset/2, heightOffset/2)
+      lg.translate((tw*scene.scale)/2, (th*scene.scale)/4)
+      local text = "You won!"
+      local font = ui.getFont(24, "fonts.regular.bold", scene.scale)
+      lg.setColor(.6,1,.6,math.max(deathBossTimer-1), 0)
+      lg.print(text, font, -font:getWidth(text)/2, 0)
+      lg.translate(0, font:getHeight()*1.1)
+      lg.setColor(1,1,1,math.max(deathBossTimer-2, 0))
+      local font = ui.getFont(16, "fonts.regular.bold", scene.scale)
+      local text = "Click to keep going! The map will randomise again!"
+      lg.print(text, font, -font:getWidth(text)/2, 0)
+      goto deathSkip
+    end
+
     lg.push()
     local humanityIcon = not humanityFlip and assetManager["ui.currency.humanity"] or assetManager["ui.currency.humanity.sad"]
     if humanityIcon then
@@ -310,27 +388,27 @@ scene.draw = function()
     lg.translate(widthOffset/2, heightOffset/2)
 
     lg.push("all")
-    do
-      lg.translate((tw*scene.scale)/2, th*scene.scale-30*scene.scale)
+    if not scene.zone.boss then
+      lg.translate((tw*scene.scale)/2, th*scene.scale-50*scene.scale)
       local px, py = scene.player.shape:center()
       local mag = math.sqrt(px^2+py^2)
       if mag <= 5 then
         local a = 1 - math.min((mag-(5-2)) / 2, 1)
-        local text = "Press E to spawn boss"
+        local text = "Press E to spawn boss!\nRequires 200 Souls!"
         local w = lg.getFont():getWidth(text)
         lg.translate(-w/2, 0)
         lg.setColor(.1,.1,.1,a)
         local n = 1.95*scene.scale
-        lg.print(text, -n, 0)
-        lg.print(text, -n, n)
-        lg.print(text, -n,-n)
-        lg.print(text,  n, 0)
-        lg.print(text,  n, n)
-        lg.print(text,  n,-n)
-        lg.print(text,  0,-n)
-        lg.print(text,  0, n)
+        lg.printf(text, -n, 0, w, "center")
+        lg.printf(text, -n, n, w, "center")
+        lg.printf(text, -n,-n, w, "center")
+        lg.printf(text,  n, 0, w, "center")
+        lg.printf(text,  n, n, w, "center")
+        lg.printf(text,  n,-n, w, "center")
+        lg.printf(text,  0,-n, w, "center")
+        lg.printf(text,  0, n, w, "center")
         lg.setColor(1,1,1,a)
-        lg.print(text, 0, 0)
+        lg.printf(text, 0, 0, w, "center")
       end
     end
     lg.pop()
@@ -421,7 +499,7 @@ scene.draw = function()
 
     lg.pop()
   end
-
+  ::deathSkip::
   lg.pop()
   lg.setDepthMode("lequal", true)
 end

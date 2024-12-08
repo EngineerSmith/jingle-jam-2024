@@ -7,6 +7,7 @@ local logger = require("util.logger")
 local blackTexture = lg.newImage("assets/black_tile.png")
 
 local plane = g3d.newModel("assets/character/character.obj", blackTexture)
+local deathPlane = g3d.newModel("assets/character/death.obj")
 
 local walk_frames = {
   lg.newImage("assets/character/player/player_000.png"),
@@ -31,7 +32,7 @@ local pistol_frames = {
 }
 local pistol_flash = lg.newImage("assets/character/player/player_pistol_flash.png")
 
-local batSizeW, batSizeH = 0.4, 0.7
+local batSizeW, batSizeH = 0.4, 1.0
 local bat_frames = {
   lg.newImage("assets/character/player/player_bat_000.png"),
   lg.newImage("assets/character/player/player_bat_001.png"),
@@ -67,6 +68,12 @@ local knife_swing = {
   lg.newImage("assets/character/player/player_knife_swing_001.png"),
   lg.newImage("assets/character/player/player_knife_swing_002.png"),
   lg.newImage("assets/character/player/player_knife_swing_003.png"),
+}
+
+local death_frames = {
+  lg.newImage("assets/character/player/player_death_000.png"),
+  lg.newImage("assets/character/player/player_death_001.png"),
+  lg.newImage("assets/character/player/player_death_002.png"),
 }
 
 local character = require("src.character")
@@ -136,8 +143,9 @@ player.hit = function(damage, type)
   end
   logger.info("Player hit for", damage, "damage!", player.health, "left!")
   if player.health <= 0 then
-    logger.warn("TODO Player death handle")
     player.health = 0
+    player.frame, player.timer = 1, 0
+    player.state = "dead"
   end
   local x, y = player.shape:center()
   local r = player.shape:rotation()
@@ -147,210 +155,219 @@ end
 local Nx, Ny = 0, 0
 local input = require("util.input")
 local audioZombies = 0
-player.update = function(dt, allowInput)
+player.update = function(dt, allowInput, deathTimer)
   hittimer = hittimer - dt
 
-  player.audioZombieGroanTimer = player.audioZombieGroanTimer + dt
-  if player.audioZombieGroanTimer >= 1/math.sqrt(math.max(audioZombies, 1)) then
-    player.audioZombieGroanTimer = 0
-    audioZombies = 0
-    for other in pairs(player.hc:collisions(player.audioShape)) do
-      if other.user == "character" and other.user2 == "zombie" then
-        audioZombies = audioZombies + 1
-      end
-    end
-    --local chance = 0.5 + math.log(audioZombies + 1) * 0.08
-    local chance = 0.5
-    if audioZombies <= 10 then
-      chance =  chance + audioZombies * 0.02
-    else
-      chance = chance + math.exp((audioZombies-10) * 0.1) - 1
-    end
-    chance = math.max(math.min(chance, .9), 0)
-    for _ = 1, math.min(math.floor(audioZombies/3), 5) do
-      if love.math.random() >= chance then
-        audioManager.play("zombie.groan")
-      end
-    end
-  end
-  player.audioBossGroanTimer = player.audioBossGroanTimer - dt
-  if player.audioBossGroanTimer <= 0 then
-    player.audioBossGroanTimer = 2
-    audioBoss = 0
-    for other in pairs(player.hc:collisions(player.audioShape)) do
-      if other.user == "character" and other.user2 == "boss" then
-        audioBoss = audioBoss + 1
-      end
-    end
-    if audioBoss ~= 0 then
-      audioManager.play("boss.groan")
-    end
-  end
-
-  local mx, my = love.mouse.getPosition()
-  local cw, ch = love.graphics.getDimensions()
-  cw, ch = cw/2, ch/2
-
-  local dx, dy = mx - cw, my - ch
-  local nx, ny = dx, dy
-  local mag = math.sqrt(nx^2+ny^2)
-  nx, ny = nx/mag, ny/mag
-  Nx, Ny = nx, ny
-
-  local angle = math.atan2(ny*-1, nx)
-  player.shape:setRotation(angle)
-
-  local x, y = 0, 0
-  if allowInput then
-    x, y = input.baton:get("move")
-  end
-  player.shape:move(x * player.speed * dt, y * player.speed * dt)
-  local moved = x ~= 0 or y ~= 0
-
-  for other, vector in pairs(player.hc:collisions(player.shape)) do
-    if other.user ~= "character" and other.user ~= "collider" or
-      (other.user == "character" and other.user2 == "boss") then
-      player.shape:move(vector.x, vector.y)
-      moved = moved or (vector.x ~= 0 or vector.y ~= 0)
-    end
-  end
-  player.audioShape:moveTo(player.shape:center())
-
-  if player.state ~= "swing_bat" and player.state ~= "swing_knife" then
-    if moved then
-      player.state = "walk"
-    else
-      player.state = "idle"
-    end
-  end
-
-  if moved then
-    player.walkTimer = player.walkTimer - dt
-    if player.walkTimer <= 0 then
-      player.walkTimer = 0.2
-      audioManager.play("player.footsteps")
-    end
-  else
-    player.walkTimer = 0
-  end
-
-  player.attackCooldown = player.attackCooldown - dt
-  if player.attackCooldown <= 0 then
-    player.attackCooldown = 0
-  end
-  if player.specialTexture == pistol_flash and player.attackCooldown <= player.weapons[player.weaponIndex].cooldown-0.1 then
-    player.specialTexture = nil
-  end
-
-  -- if player.rect then
-  --   local x, y = player.shape:center()
-  --   player.rect:moveTo(x, y)
-  --   player.rect:setRotation(player.shape:rotation(), x, y)
-  --   player.rect:moveTo(x-nx*batSizeH, y+ny*batSizeH)
-  -- end
   local killedZombies = 0
-  if allowInput then
-    if player.attack == "bat" then
-      if input.baton:pressed("attack") then
-        if player.attackCooldown == 0 then
-          audioManager.play("weapon.bat")
-          player.attackCooldown = player.weapons[player.weaponIndex].cooldown
-          player.state = "swing_bat"
-          player.timer, player.frame = 0, 1
 
-          local x, y = player.shape:center()
-          player.zone:makeNoise(player.weapons[player.weaponIndex].noise, x, y)
-
-          local rect = player.hc:rectangle(0, 0, batSizeH*2, batSizeW)
-          rect.user = "collider"
-          rect:moveTo(x, y)
-          rect:setRotation(player.shape:rotation(), x, y)
-          rect:moveTo(x-nx*batSizeH, y+ny*batSizeH)
-          local hit = 0
-          for shape in pairs(player.hc:collisions(rect)) do
-            if shape.user == "character" and (shape.user2 == "zombie" or shape.user2 == "boss") and shape.user3.health ~= 0 then
-              shape.user3:hit(player.weapons[player.weaponIndex].damage, player.zone)
-              hit = hit + 1
-              if shape.user3.health == 0 then
-                killedZombies = killedZombies + 1
-              end
-            end
-          end
-          for _ = 1, math.min(hit, 2) do
-            audioManager.play("zombie.hit.bat")
-          end
-          player.hc:remove(rect)
+  if player.health > 0 and ((player.zone.boss and player.zone.boss.health > 0) or not player.zone.boss) then
+    player.audioZombieGroanTimer = player.audioZombieGroanTimer + dt
+    if player.audioZombieGroanTimer >= 1/math.sqrt(math.max(audioZombies, 1)) then
+      player.audioZombieGroanTimer = 0
+      audioZombies = 0
+      for other in pairs(player.hc:collisions(player.audioShape)) do
+        if other.user == "character" and other.user2 == "zombie" then
+          audioZombies = audioZombies + 1
         end
       end
-    elseif player.attack == "knife" then
-      if input.baton:pressed("attack") then
-        if player.attackCooldown == 0 then
-          audioManager.play("weapon.knife")
-          player.attackCooldown = player.weapons[player.weaponIndex].cooldown
-          player.state = "swing_knife"
-          player.timer, player.frame = 0, 1
-
-          local x, y = player.shape:center()
-          player.zone:makeNoise(player.weapons[player.weaponIndex].noise, x, y)
-
-          local rect = player.hc:rectangle(0, 0, knifeSizeH*2, knifeSizeW)
-          rect.user = "collider"
-          rect:moveTo(x, y)
-          rect:setRotation(player.shape:rotation(), x, y)
-          rect:moveTo(x-nx*knifeSizeH, y+ny*knifeSizeH)
-          local hit = 0
-          for shape in pairs(player.hc:collisions(rect)) do
-            if shape.user == "character" and (shape.user2 == "zombie" or shape.user2 == "boss") and shape.user3.health ~= 0 then
-              shape.user3:hit(player.weapons[player.weaponIndex].damage, player.zone)
-              hit = hit + 1
-              if shape.user3.health == 0 then
-                killedZombies = killedZombies + 1
-              end
-            end
-          end
-          for _ = 1, math.min(hit, 2) do
-            audioManager.play("zombie.hit.knife")
-          end
-          player.hc:remove(rect)
+      --local chance = 0.5 + math.log(audioZombies + 1) * 0.08
+      local chance = 0.5
+      if audioZombies <= 10 then
+        chance =  chance + audioZombies * 0.02
+      else
+        chance = chance + math.exp((audioZombies-10) * 0.1) - 1
+      end
+      chance = math.max(math.min(chance, .9), 0)
+      for _ = 1, math.min(math.floor(audioZombies/3), 5) do
+        if love.math.random() >= chance then
+          audioManager.play("zombie.groan")
         end
       end
-    elseif player.attack == "pistol" then
-      if input.baton:down("attack") then
-        if player.attackCooldown == 0 then
-          audioManager.play("weapon.pistol")
-          player.attackCooldown = player.weapons[player.weaponIndex].cooldown
-          player.specialTexture = pistol_flash
+    end
+    player.audioBossGroanTimer = player.audioBossGroanTimer - dt
+    if player.audioBossGroanTimer <= 0 then
+      player.audioBossGroanTimer = 2
+      audioBoss = 0
+      for other in pairs(player.hc:collisions(player.audioShape)) do
+        if other.user == "character" and other.user2 == "boss" then
+          audioBoss = audioBoss + 1
+        end
+      end
+      if audioBoss ~= 0 then
+        audioManager.play("boss.groan")
+      end
+    end
+  
 
-          local x, y = player.shape:center()
-          player.zone:makeNoise(player.weapons[player.weaponIndex].noise, x, y)
+    local mx, my = love.mouse.getPosition()
+    local cw, ch = love.graphics.getDimensions()
+    cw, ch = cw/2, ch/2
 
-          local bullet = player.hc:point(x, y)
-          bullet:move(-nx*player.size, ny*player.size)
-          local dist, step = 0, .05
-          while dist <= 20 do
-            for shape in pairs(player.hc:collisions(bullet)) do
+    local dx, dy = mx - cw, my - ch
+    local nx, ny = dx, dy
+    local mag = math.sqrt(nx^2+ny^2)
+    nx, ny = nx/mag, ny/mag
+    Nx, Ny = nx, ny
+
+    local angle = math.atan2(ny*-1, nx)
+    player.shape:setRotation(angle)
+
+    local x, y = 0, 0
+    if allowInput then
+      x, y = input.baton:get("move")
+    end
+    player.shape:move(x * player.speed * dt, y * player.speed * dt)
+    local moved = x ~= 0 or y ~= 0
+
+    for other, vector in pairs(player.hc:collisions(player.shape)) do
+      if other.user ~= "character" and other.user ~= "collider" or
+        (other.user == "character" and other.user2 == "boss") then
+        player.shape:move(vector.x, vector.y)
+        moved = moved or (vector.x ~= 0 or vector.y ~= 0)
+      end
+    end
+    player.audioShape:moveTo(player.shape:center())
+
+    if player.state ~= "swing_bat" and player.state ~= "swing_knife" then
+      if moved then
+        player.state = "walk"
+      else
+        player.state = "idle"
+      end
+    end
+
+    if moved then
+      player.walkTimer = player.walkTimer - dt
+      if player.walkTimer <= 0 then
+        player.walkTimer = 0.2
+        audioManager.play("player.footsteps")
+      end
+    else
+      player.walkTimer = 0
+    end
+
+    player.attackCooldown = player.attackCooldown - dt
+    if player.attackCooldown <= 0 then
+      player.attackCooldown = 0
+    end
+    if player.specialTexture == pistol_flash and player.attackCooldown <= player.weapons[player.weaponIndex].cooldown-0.1 then
+      player.specialTexture = nil
+    end
+  
+    if allowInput then
+      if player.attack == "bat" then
+        if input.baton:pressed("attack") then
+          if player.attackCooldown == 0 then
+            audioManager.play("weapon.bat")
+            player.attackCooldown = player.weapons[player.weaponIndex].cooldown
+            player.state = "swing_bat"
+            player.timer, player.frame = 0, 1
+
+            local x, y = player.shape:center()
+            player.zone:makeNoise(player.weapons[player.weaponIndex].noise, x, y)
+
+            local rect = player.hc:rectangle(0, 0, batSizeH*2, batSizeW)
+            rect.user = "collider"
+            rect:moveTo(x, y)
+            rect:setRotation(player.shape:rotation(), x, y)
+            rect:moveTo(x-nx*batSizeH, y+ny*batSizeH)
+            local hit = 0
+            for shape in pairs(player.hc:collisions(rect)) do
               if shape.user == "character" and (shape.user2 == "zombie" or shape.user2 == "boss") and shape.user3.health ~= 0 then
-                audioManager.play("zombie.hit.bullet")
                 shape.user3:hit(player.weapons[player.weaponIndex].damage, player.zone)
+                hit = hit + 1
                 if shape.user3.health == 0 then
                   killedZombies = killedZombies + 1
                 end
-                goto breakOut
-              end
-              if shape.user == "building" or shape.user == "egg" then
-                goto breakOut
               end
             end
-            bullet:move(-nx*step, ny*step)
-            dist = dist + step
+            for _ = 1, math.min(hit, 2) do
+              audioManager.play("zombie.hit.bat")
+            end
+            player.hc:remove(rect)
           end
-          ::breakOut::
+        end
+      elseif player.attack == "knife" then
+        if input.baton:pressed("attack") then
+          if player.attackCooldown == 0 then
+            audioManager.play("weapon.knife")
+            player.attackCooldown = player.weapons[player.weaponIndex].cooldown
+            player.state = "swing_knife"
+            player.timer, player.frame = 0, 1
+
+            local x, y = player.shape:center()
+            player.zone:makeNoise(player.weapons[player.weaponIndex].noise, x, y)
+
+            local rect = player.hc:rectangle(0, 0, knifeSizeH*2, knifeSizeW)
+            rect.user = "collider"
+            rect:moveTo(x, y)
+            rect:setRotation(player.shape:rotation(), x, y)
+            rect:moveTo(x-nx*knifeSizeH, y+ny*knifeSizeH)
+            local hit = 0
+            for shape in pairs(player.hc:collisions(rect)) do
+              if shape.user == "character" and (shape.user2 == "zombie" or shape.user2 == "boss") and shape.user3.health ~= 0 then
+                shape.user3:hit(player.weapons[player.weaponIndex].damage, player.zone)
+                hit = hit + 1
+                if shape.user3.health == 0 then
+                  killedZombies = killedZombies + 1
+                end
+              end
+            end
+            for _ = 1, math.min(hit, 2) do
+              audioManager.play("zombie.hit.knife")
+            end
+            player.hc:remove(rect)
+          end
+        end
+      elseif player.attack == "pistol" then
+        if input.baton:down("attack") then
+          if player.attackCooldown == 0 then
+            audioManager.play("weapon.pistol")
+            player.attackCooldown = player.weapons[player.weaponIndex].cooldown
+            player.specialTexture = pistol_flash
+
+            local x, y = player.shape:center()
+            player.zone:makeNoise(player.weapons[player.weaponIndex].noise, x, y)
+
+            local bullet = player.hc:point(x, y)
+            bullet:move(-nx*player.size, ny*player.size)
+            local dist, step = 0, .05
+            while dist <= 20 do
+              for shape in pairs(player.hc:collisions(bullet)) do
+                if shape.user == "character" and (shape.user2 == "zombie" or shape.user2 == "boss") and shape.user3.health ~= 0 then
+                  audioManager.play("zombie.hit.bullet")
+                  shape.user3:hit(player.weapons[player.weaponIndex].damage, player.zone)
+                  if shape.user3.health == 0 then
+                    killedZombies = killedZombies + 1
+                  end
+                  goto breakOut
+                end
+                if shape.user == "building" or shape.user == "egg" then
+                  goto breakOut
+                end
+              end
+              bullet:move(-nx*step, ny*step)
+              dist = dist + step
+            end
+            ::breakOut::
+          end
         end
       end
     end
   end
 
-  if player.state == "idle" then
+  if player.state == "dead" then
+    if deathTimer > 1 then
+      player.timer = player.timer + dt
+      while player.timer >= 0.5 do
+        player.timer = player.timer - 0.5
+        player.frame = player.frame + 1
+        if player.frame > #death_frames then
+          player.frame = #death_frames
+        end
+      end
+    end
+  elseif player.state == "idle" then
     player.frame, player.timer = 1, 0
   elseif player.state == "walk" then
     player.timer = player.timer + dt
@@ -389,6 +406,18 @@ end
 
 player.draw = function()
   local x, y = player.shape:center()
+
+  if player.state == "dead" then
+    deathPlane:setTranslation(x, y, 0.1)
+    deathPlane:setRotation(0, 0, player.shape:rotation()-math.rad(90))
+
+    deathPlane:setTexture(death_frames[player.frame])
+
+    deathPlane:draw()
+
+    return
+  end
+
   plane:setTranslation(x, y, 0.1)
   plane:setRotation(0, 0, player.shape:rotation()-math.rad(90))
   if player.specialTexture then

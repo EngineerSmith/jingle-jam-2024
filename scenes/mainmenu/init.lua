@@ -11,12 +11,37 @@ local flux = require("libs.flux")
 local suit = require("libs.suit").new()
 local ui = require("util.ui")
 
+local g3d = require("libs.g3d")
+local cam = g3d.camera:current()
+cam.fov = math.rad(50)
+cam:updateProjectionMatrix()
+
 local settingsMenu = require("ui.menu.settings")
 settingsMenu.set(suit)
 
 suit.theme = require("ui.theme.menu")
 
-local scene = { }
+local gameLogo1 = lg.newImage("assets/gamelogo_000.png")
+gameLogo1:setFilter("nearest", "nearest")
+local gameLogo2 = lg.newImage("assets/gamelogo_001.png")
+gameLogo2:setFilter("nearest", "nearest")
+
+do
+  require("assets.cells.park")
+  
+  require("assets.cells.city_res")
+end
+local road = require("src.road")
+
+local scene = {
+  menu = "prompt",
+  posX = love.math.random() > 0.5 and love.math.random(-90,-30) or love.math.random(70,120),
+  posY = 14,
+}
+
+local updateCamera = function()
+  g3d.camera.current():lookAt(scene.posX, 10, scene.posY, scene.posX, 0, scene.posY-8)
+end
 
 scene.preload = function()
   settingsMenu.preload()
@@ -26,7 +51,8 @@ scene.load = function()
   suit:gamepadMode(true)
   cursor.setType(settings.client.systemCursor and "system" or "custom")
 
-  scene.menu = "prompt"
+  --scene.menu = "prompt"
+  scene.zone = require("src.zone").getZone("city")
   settingsMenu.load()
 end
 
@@ -46,7 +72,7 @@ scene.resize = function(w, h)
   -- Update settings
   settings.client.resize(w, h)
 
--- Scale scene
+  -- Scale scene
   local wsize = settings._default.client.windowSize
   local tw, th = wsize.width, wsize.height
   local sw, sh = w / tw, h / th
@@ -64,11 +90,37 @@ scene.resize = function(w, h)
 
   -- scale Cursor
   cursor.setScale(scene.scale)
+
+  --
+  local cam = g3d.camera:current()
+  cam.aspectRatio = (w/h)
+  cam:updateProjectionMatrix()
 end
+
+local bgTimer = 0
+local logoTimer = 0
 
 local inputTimer, inputTimeout = 0, 0
 local inputType = nil
 scene.update = function(dt)
+  logoTimer = logoTimer + dt
+  if logoTimer >= 1 then
+    logoTimer = 0
+  end
+
+  bgTimer = bgTimer + dt
+  if bgTimer > 10 then
+    bgTimer = 0
+    local newX = 0
+    repeat
+      newX = love.math.random() > 0.5 and love.math.random(-90,-30) or love.math.random(70,120)
+    until math.abs(newX - scene.posX) >= 20
+    scene.posX = newX
+  end
+  scene.posX = scene.posX + dt*1
+  updateCamera()
+  scene.zone:update(dt, nil)
+
   if scene.menu == "main" then
     if not suit.gamepadActive then
       if input.baton:pressed("menuNavUp") or input.baton:pressed("menuNavDown") then
@@ -251,8 +303,36 @@ scene.updateui = function()
   end
 end
 
+local logoBounce = { offset = 0 }
+local logoKey1, logoKey2
+logoKey1 = function()
+  flux.to(logoBounce, 2, { offset = -20}):ease("backinout"):oncomplete(logoKey2)
+end
+logoKey2 = function()
+  flux.to(logoBounce, 2, { offset = 0}):ease("backinout"):oncomplete(logoKey1)
+end
+logoKey1()
+
 scene.draw = function()
-  lg.clear(25/255, 5/255, 50/255)
+  lg.clear(0.7,0.3,0.4,1)
+  lg.setDepthMode("lequal", true)
+  road.draw("city")
+  scene.zone:draw(0)
+  lg.setDepthMode("always", true)
+
+
+  if scene.menu ~= "settings" then
+    lg.setColor(.05,.05,.05, .5)
+    lg.rectangle("fill", 0, 0, lg.getDimensions())
+    lg.setColor(1,1,1,1)
+    local w, h = lg.getDimensions()
+    local iw, ih = gameLogo1:getDimensions()
+    iw, ih = iw*2*scene.scale, ih*2*scene.scale
+    local img = logoTimer > 0.5 and gameLogo1 or gameLogo2
+    lg.draw(img, w/2-iw/2, ih+logoBounce.offset*scene.scale, 0, 2*scene.scale)
+    local text = ""
+  end
+
   if scene.menu == "prompt" then
     local windowW, windowH = lg.getDimensions()
     local offset = windowH/10

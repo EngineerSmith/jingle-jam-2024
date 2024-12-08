@@ -17,13 +17,13 @@
 
   "game.weaponset.left.title": "Kill enemies at a safe distances!",
   "game.weaponset.right.title": "Kill enemies fast but dangerously!",
-  "game.weaponset.left.text": "Pistol:\n  Cooldown: 1.0\n  Damage:   4.0\nBat:\n  Cooldown: 1.0\n  Damage:   1.5\n  Range:    1.0",
-  "game.weaponset.right.text": "Pistol:\n  Cooldown: 0.5\n  Damage:   3.0\nKnife\n  Cooldown: 1.0\n  Damage:   3.0\n  Range:    0.5",
+  "game.weaponset.left.text": "Pistol:\n  Cooldown: 0.8\n  Damage:   5.0  Noise: 45.0\nBat:\n  Cooldown: 0.8\n  Damage:   1.5\n  Range:    1.0",
+  "game.weaponset.right.text": "Pistol:\n  Cooldown: 0.4\n  Damage:   3.0  Noise: 30.0\nKnife\n  Cooldown: 0.8\n  Damage:   3.0\n  Range:    0.5",
 
   "menu.prompt": "[bounce=7]Press Any Button[/bounce]",
   "menu.continue": "Continue",
   "menu.load": "Load",
-  "menu.new_game": "New Game",
+  "menu.new_game": "Play",
   "menu.settings": "Settings",
   "menu.exit": "Exit",
   "menu.back": "Back",

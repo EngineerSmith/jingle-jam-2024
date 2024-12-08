@@ -185,9 +185,6 @@ zone.update = function(self, dt, player)
   for _, cell in ipairs(self.cells) do
     cell:update(dt)
   end
-  for _, z in ipairs(self.zombies) do
-    z:update(dt, self.hc, player)
-  end
   local boss = self.bossCell:updateEgg(dt, self.hc)
   if boss then
     -- boss spawned
@@ -196,16 +193,30 @@ zone.update = function(self, dt, player)
   if self.boss then
     self.boss:update(dt, self.hc, self, player)
   end
+  if self.boss and self.boss.health == 0 then
+    return
+  end
+  for _, z in ipairs(self.zombies) do
+    z:update(dt, self.hc, player)
+  end
 end
 
-zone.draw = function(self)
+local lg = love.graphics
+zone.draw = function(self, deathTimer)
   for _, cell in ipairs(self.cells) do
     cell:draw()
   end
-  for _, z in ipairs(self.zombies) do
-    z:draw()
+  if deathTimer <= 0.1 then
+    for _, z in ipairs(self.zombies) do
+      z:draw()
+    end
+  end
+  lg.push("all")
+  if deathTimer ~= 0 then
+    lg.setColor(.7,.7,.7,math.min(deathTimer,.5))
   end
   blood.draw(self.blood)
+  lg.pop()
   if self.boss then
     self.boss:draw()
   end
