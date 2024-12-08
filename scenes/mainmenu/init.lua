@@ -28,8 +28,8 @@ gameLogo2:setFilter("nearest", "nearest")
 
 do
   require("assets.cells.park")
-  
   require("assets.cells.city_res")
+  require("assets.cells.city_res_2")
 end
 local road = require("src.road")
 

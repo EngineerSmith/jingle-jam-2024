@@ -18,6 +18,7 @@ local ui = require("util.ui")
 do
  require("assets.cells.park")
  require("assets.cells.city_res")
+ require("assets.cells.city_res_2")
 end
 local road = require("src.road")
 
