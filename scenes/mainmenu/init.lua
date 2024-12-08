@@ -330,7 +330,14 @@ scene.draw = function()
     iw, ih = iw*2*scene.scale, ih*2*scene.scale
     local img = logoTimer > 0.5 and gameLogo1 or gameLogo2
     lg.draw(img, w/2-iw/2, ih+logoBounce.offset*scene.scale, 0, 2*scene.scale)
+
+    local lk = love.keyboard
     local text = ""
+    text = text .. lk.getScancodeFromKey("w") .. lk.getScancodeFromKey("a") .. lk.getScancodeFromKey("s") .. lk.getScancodeFromKey("d")
+    text = text:upper() .." movement | Mouse left click attack | "
+    local key = lk.getScancodeFromKey("e")
+    text = text .. key:upper() .. " to interact"
+    lg.print(text, w-lg.getFont():getWidth(text)-10*scene.scale, h-lg.getFont():getHeight()-10*scene.scale)
   end
 
   if scene.menu == "prompt" then
