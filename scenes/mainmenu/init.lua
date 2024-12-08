@@ -37,10 +37,11 @@ local scene = {
   menu = "prompt",
   posX = love.math.random() > 0.5 and love.math.random(-90,-30) or love.math.random(70,120),
   posY = 14,
+  posZ = love.math.random(-80,80)
 }
 
 local updateCamera = function()
-  g3d.camera.current():lookAt(scene.posX, 10, scene.posY, scene.posX, 0, scene.posY-8)
+  g3d.camera.current():lookAt(scene.posX, scene.posZ+10, scene.posY, scene.posX, scene.posZ, scene.posY-8)
 end
 
 scene.preload = function()
@@ -116,6 +117,7 @@ scene.update = function(dt)
       newX = love.math.random() > 0.5 and love.math.random(-90,-30) or love.math.random(70,120)
     until math.abs(newX - scene.posX) >= 20
     scene.posX = newX
+    scene.posZ = love.math.random(-80,80)
   end
   scene.posX = scene.posX + dt*1
   updateCamera()
@@ -314,7 +316,7 @@ end
 logoKey1()
 
 scene.draw = function()
-  lg.clear(0.7,0.3,0.4,1)
+  lg.clear(0,0,0,1)
   lg.setDepthMode("lequal", true)
   road.draw("city")
   scene.zone:draw(0)
@@ -338,6 +340,9 @@ scene.draw = function()
     local key = lk.getScancodeFromKey("e")
     text = text .. key:upper() .. " to interact"
     lg.print(text, w-lg.getFont():getWidth(text)-10*scene.scale, h-lg.getFont():getHeight()-10*scene.scale)
+
+    local font = ui.getFont(16, "fonts.regular.bold", scene.scale)
+    lg.print("Code/Art by EngineerSmith\nSFX by Alex Connelly", font, 5*scene.scale, 2*scene.scale)
   end
 
   if scene.menu == "prompt" then
