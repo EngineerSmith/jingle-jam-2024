@@ -149,6 +149,10 @@ return {
   -- Currency
   { path = "UI/humanity.png", name = "ui.currency.humanity", onLoad = filterNearest },
   { path = "UI/humanity_sad.png", name = "ui.currency.humanity.sad", onLoad = filterNearest },
+  -- Player
+  { path = "UI/heart_full.png", name = "ui.health.full", onLoad = filterNearest },
+  { path = "UI/heart_half.png", name = "ui.health.half", onLoad = filterNearest },
+  { path = "UI/heart_empty.png", name = "ui.health.empty", onLoad = filterNearest },
 -- Input
   -- Digit
   { path = "UI/input/pc/keyboard_0_outline.png", name = "input.pc.0", onLoad = filterLinear },

@@ -116,7 +116,7 @@ player.setZone = function(zone, x, y)
   player.audioZombieGroanTimer = 0
   player.audioBossGroanTimer = 0
 
-  player.health = 5
+  player.health = 6
 end
 
 player.hit = function(damage, type)

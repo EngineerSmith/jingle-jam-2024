@@ -28,6 +28,17 @@ local frames_death = {
   lg.newImage("assets/boss/fat/boss_fat_death_002.png"),
   lg.newImage("assets/boss/fat/boss_fat_death_003.png"),
   lg.newImage("assets/boss/fat/boss_fat_death_004.png"),
+  lg.newImage("assets/boss/fat/boss_fat_death_005.png"),
+  lg.newImage("assets/boss/fat/boss_fat_death_006.png"),
+  lg.newImage("assets/boss/fat/boss_fat_death_007.png"),
+  lg.newImage("assets/boss/fat/boss_fat_death_008.png"),
+  lg.newImage("assets/boss/fat/boss_fat_death_009.png"),
+  lg.newImage("assets/boss/fat/boss_fat_death_010.png"),
+  lg.newImage("assets/boss/fat/boss_fat_death_011.png"),
+  lg.newImage("assets/boss/fat/boss_fat_death_012.png"),
+  lg.newImage("assets/boss/fat/boss_fat_death_013.png"),
+  lg.newImage("assets/boss/fat/boss_fat_death_014.png"),
+  lg.newImage("assets/boss/fat/boss_fat_death_015.png"),
 }
 
 local character = require("src.character")
@@ -35,7 +46,7 @@ local boss = character.new()
 
 boss.clone = function(hc, x, y)
   local self = character.new()
-  self.health = 30
+  self.health = 50
   self.speed, self.rotationSpeed = 5.5, math.rad(220)
   self.state = "idle"
 
@@ -221,8 +232,8 @@ boss.update = function(self, dt, hc, zone, player)
 
   if self.state == "dead" then
     self.timer = self.timer + dt
-    while self.timer >= 0.15 do
-      self.timer = self.timer - 0.15
+    while self.timer >= 0.2 do
+      self.timer = self.timer - 0.2
       self.frame = self.frame + 1
       if self.frame > #frames_death then
         self.frame = #frames_death

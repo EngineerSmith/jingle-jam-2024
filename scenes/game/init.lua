@@ -72,7 +72,6 @@ local humanity = 0
 scene.load = function()
   scene.zone = require("src.zone").getZone("city")
   road.createColliders("city", scene.zone.hc)
-  --scene.zone:forceBossSpawn()
 
   scene.player.setZone(scene.zone, 0, -5)
 
@@ -164,10 +163,10 @@ scene.update = function(dt)
     end
 
     if input.baton:pressed("interact") then
-      --if humanity >= 200 then
+      if humanity >= 200 or (love.keyboard.isScancodeDown("lctrl", "rctrl") and love.keyboard.isScancodeDown("lshift", "rshift")) then
         humanity = humanity - 200
         scene.zone:forceBossSpawn()
-      --end
+      end
     end
   end
   if scene.player then

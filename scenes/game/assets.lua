@@ -6,6 +6,9 @@ return {
   "ui.weapon.pistol.silver",
   "ui.currency.humanity",
   "ui.currency.humanity.sad",
+  "ui.health.full",
+  "ui.health.half",
+  "ui.health.empty",
   -- input
   "input.pc.1",
   "input.pc.2",
