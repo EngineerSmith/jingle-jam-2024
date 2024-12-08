@@ -85,8 +85,10 @@ boss.hit = function(self, damage, zone)
 end
 
 boss.move = function(self, dx, dy)
-  self.body:move(dx, dy)
-  self.pathShape:moveTo(self.body:center())
+  if self.body then
+    self.body:move(dx, dy)
+    self.pathShape:moveTo(self.body:center())
+  end
 end
 
 local feelerStrength = 2.3
@@ -187,6 +189,9 @@ boss.update = function(self, dt, hc, zone, player)
           self.timer, self.frame = 0, 1
           self.lastAttack = 0
           self:hit(1, zone)
+          if self.health <= 0 then
+            break
+          end
         end
       end
     end

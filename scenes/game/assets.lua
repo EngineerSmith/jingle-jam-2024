@@ -4,6 +4,8 @@ return {
   "ui.weapon.knife",
   "ui.weapon.pistol.gold",
   "ui.weapon.pistol.silver",
+  "ui.currency.humanity",
+  "ui.currency.humanity.sad",
   -- input
   "input.pc.1",
   "input.pc.2",

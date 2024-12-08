@@ -143,6 +143,9 @@ return {
   { path = "UI/weapon/knife.png", name = "ui.weapon.knife", onLoad = filterNearest },
   { path = "UI/weapon/pistol_gold.png", name = "ui.weapon.pistol.gold", onLoad = filterNearest },
   { path = "UI/weapon/pistol_silver.png", name = "ui.weapon.pistol.silver", onLoad = filterNearest },
+  -- Currency
+  { path = "UI/humanity.png", name = "ui.currency.humanity", onLoad = filterNearest },
+  { path = "UI/humanity_sad.png", name = "ui.currency.humanity.sad", onLoad = filterNearest },
 -- Input
   -- Digit
   { path = "UI/input/pc/keyboard_0_outline.png", name = "input.pc.0", onLoad = filterLinear },

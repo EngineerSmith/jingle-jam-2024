@@ -67,6 +67,8 @@ local updateCamera = function()
   g3d.camera.current():lookAt(scene.posX, scene.posY, 25, scene.posX, scene.posY-0.000001, 0)
 end
 
+local humanity = 0
+
 scene.load = function()
   scene.zone = require("src.zone").getZone("city")
   road.createColliders("city", scene.zone.hc)
@@ -75,6 +77,8 @@ scene.load = function()
   scene.player.setZone(scene.zone, 0, -5)
 
   updateCamera()
+
+  humanity = 0
 end
 
 scene.resize = function(w, h)
@@ -103,6 +107,7 @@ end
 local menuHighlight = "none"
 
 local waitTimer = 0
+local humanityTimer, humanityFlip = 0, true
 scene.update = function(dt)
   love.mouse.setRelativeMode(false)
   love.mouse.setVisible(true)
@@ -147,12 +152,25 @@ scene.update = function(dt)
     end
 
     scene.zone:update(dt, scene.player)
+
+    humanityTimer = humanityTimer - dt
+    if humanityTimer <= 0 then
+      humanityFlip = not humanityFlip
+      if humanityFlip then
+        humanityTimer = 0.5
+      else
+        humanityTimer = 1.5
+      end
+    end
   end
   if scene.player then
-    scene.player.update(dt, scene.state == "game")
+    local killedZombies = scene.player.update(dt, scene.state == "game")
     scene.posX, scene.posY = scene.player.shape:center()
     updateCamera()
+
+    humanity = humanity + killedZombies
   end
+
 end
 
 scene.draw = function()
@@ -266,6 +284,23 @@ scene.draw = function()
     local heightOffset = lg.getHeight()-(th*scene.scale)
     lg.setColor(1,1,1,1)
     lg.push("all")
+
+    lg.push()
+    local humanityIcon = not humanityFlip and assetManager["ui.currency.humanity"] or assetManager["ui.currency.humanity.sad"]
+    if humanityIcon then
+      local s = 3*scene.scale
+      lg.setColor(.1,.1,.1,.5)
+      local w = humanityIcon:getWidth()*s
+      local h = humanityIcon:getHeight()*s-s*2
+      lg.rectangle("fill", s, s, w*2-s*2, h, 10)
+      lg.setColor(1,1,1,1)
+      lg.draw(humanityIcon, 0, 0, 0, s)
+      local font = ui.getFont(18, "fonts.regular.bold", scene.scale)
+      local h = h/2-font:getHeight()/2.2
+      lg.printf(("%04d"):format(math.floor(humanity)), font, w-s, h, (w*2-s*2)-(w), "right")
+    end
+    lg.pop()
+
     lg.translate(widthOffset/2, heightOffset/2)
 
     local padding = 4*scene.scale
@@ -287,7 +322,10 @@ scene.draw = function()
     end
 
     lg.push("all")
-    lg.setColor(1,1,1,0.1)
+    lg.setColor(.1,.1,.1,.5)
+    if scene.player.weaponIndex == 1 then
+      lg.setColor(1,1,1,0.1)
+    end
     lg.rectangle("fill", -(squareSize+padding*4), padding, squareSizePadded, squareSizePadded, 10)
     local per = ((scene.player.attackCooldown or 1) / (weapons[1].cooldown or 1))
     if scene.player.weaponIndex == 1 then
@@ -309,7 +347,10 @@ scene.draw = function()
     lg.translate(padding, 0)
 
     lg.push("all")
-    lg.setColor(1,1,1,0.1)
+    lg.setColor(.1,.1,.1,.5)
+    if scene.player.weaponIndex == 2 then
+      lg.setColor(1,1,1,0.1)
+    end
     lg.rectangle("fill",  padding, padding, squareSizePadded, squareSizePadded, 10)
     local per = ((scene.player.attackCooldown or 1) / (weapons[2].cooldown or 1))
     if scene.player.weaponIndex == 2 then

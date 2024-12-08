@@ -237,6 +237,7 @@ player.update = function(dt, allowInput)
   --   player.rect:setRotation(player.shape:rotation(), x, y)
   --   player.rect:moveTo(x-nx*batSizeH, y+ny*batSizeH)
   -- end
+  local killedZombies = 0
   if allowInput then
     if player.attack == "bat" then
       if input.baton:pressed("attack") then
@@ -259,6 +260,9 @@ player.update = function(dt, allowInput)
             if shape.user == "character" and (shape.user2 == "zombie" or shape.user2 == "boss") and shape.user3.health ~= 0 then
               shape.user3:hit(player.weapons[player.weaponIndex].damage, player.zone)
               hit = hit + 1
+              if shape.user3.health == 0 then
+                killedZombies = killedZombies + 1
+              end
             end
           end
           for _ = 1, math.min(hit, 2) do
@@ -288,6 +292,9 @@ player.update = function(dt, allowInput)
             if shape.user == "character" and (shape.user2 == "zombie" or shape.user2 == "boss") and shape.user3.health ~= 0 then
               shape.user3:hit(player.weapons[player.weaponIndex].damage, player.zone)
               hit = hit + 1
+              if shape.user3.health == 0 then
+                killedZombies = killedZombies + 1
+              end
             end
           end
           for _ = 1, math.min(hit, 2) do
@@ -297,7 +304,7 @@ player.update = function(dt, allowInput)
         end
       end
     elseif player.attack == "pistol" then
-      if input.baton:pressed("attack") then
+      if input.baton:down("attack") then
         if player.attackCooldown == 0 then
           audioManager.play("weapon.pistol")
           player.attackCooldown = player.weapons[player.weaponIndex].cooldown
@@ -314,6 +321,9 @@ player.update = function(dt, allowInput)
               if shape.user == "character" and (shape.user2 == "zombie" or shape.user2 == "boss") and shape.user3.health ~= 0 then
                 audioManager.play("zombie.hit.bullet")
                 shape.user3:hit(player.weapons[player.weaponIndex].damage, player.zone)
+                if shape.user3.health == 0 then
+                  killedZombies = killedZombies + 1
+                end
                 goto breakOut
               end
               if shape.user == "building" or shape.user == "egg" then
@@ -363,6 +373,7 @@ player.update = function(dt, allowInput)
       end
     end
   end
+  return killedZombies
 end
 
 player.draw = function()
