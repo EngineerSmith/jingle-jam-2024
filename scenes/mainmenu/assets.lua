@@ -16,4 +16,12 @@ return {
   "zombie.hit.bullet",
   "zombie.hit.bat",
   "zombie.hit.knife",
+  "player.footsteps",
+  "player.hurt",
+  "boss.attack.slam",
+  "boss.attack.charge",
+  "boss.attack.charging",
+  "boss.grunt",
+  "boss.death",
+  "boss.groan",
 }

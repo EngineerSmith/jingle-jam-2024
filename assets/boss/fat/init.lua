@@ -78,9 +78,9 @@ boss.hit = function(self, damage, zone)
   zone:addBlood(x, y, r, self.health == 0, 100, 100)
 
   if self.health == 0 then
-    audioManager.play("zombie.death")
+    audioManager.play("boss.death")
   else
-    audioManager.play("zombie.grunt")
+    audioManager.play("boss.grunt")
   end
 end
 
@@ -114,6 +114,7 @@ boss.update = function(self, dt, hc, zone, player)
         self.state = "attack_charge"
         self.timer, self.frame = 0, 1
         self.lastAttack = 0
+        audioManager.play("boss.attack.charging")
       end
 
       local x, y = self.body:center()
@@ -162,6 +163,7 @@ boss.update = function(self, dt, hc, zone, player)
         self.timer, self.frame = 0, 1
         self.lastAttack = 0
         self.attackCooldown = self.chargeCooldown
+        audioManager.play("boss.attack.chargeup")
       elseif distToTarget <= 1.5 and self.state ~= "attack_right" and self.state ~= "charging" and self.state ~= "attack_charge" and math.abs(rotationDiff) <= math.rad(20) and self.lastAttack >= 0.4 then
         self.state = "attack_right"
         self.timer, self.frame = 0, 1
@@ -209,6 +211,7 @@ boss.update = function(self, dt, hc, zone, player)
     self.state = "idle"
     self.frame = 1
     self.lastAttack = 0
+    audioManager.play("boss.attack.slam")
     local px, py = player.shape:center()
     local zx, zy = self.body:center()
     local r = self.body:rotation()

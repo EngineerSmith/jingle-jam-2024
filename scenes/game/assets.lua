@@ -9,6 +9,16 @@ return {
   "input.pc.2",
   "input.pc.mouse.scroll.vertical",
 -- Audio
+  -- player
+  "player.footsteps",
+  "player.hurt",
+  -- boss
+  "boss.attack.slam",
+  "boss.attack.chargeup",
+  "boss.attack.charging",
+  "boss.grunt",
+  "boss.death",
+  "boss.groan",
   -- zombie
   "zombie.groan",
   "zombie.grunt",

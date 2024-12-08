@@ -88,13 +88,10 @@ audioManager.play = function(assetKey)
   end
   if audioInfo.audioType == "ui" or audioInfo.audioType == "sfx" or audioInfo.audioType == "zombie" then
     local s = audioInfo[love.math.random(1, #audioInfo)]
+    local a = s.asset
     s.asset:play()
     s.asset = s.asset:clone()
-  -- elseif audioInfo.audioType == "zombie" then
-  --   local s = audioInfo[love.math.random(1, #audioInfo)]
-  --   local a = s.asset
-  --   s.asset = s.asset:clone()
-  --   return a
+    return a
   else
     logger.error("Add", audioInfo.audioType, "audioType to audiomanager.play")
     return audioInfo[1]

@@ -29,6 +29,42 @@ return {
   { path = "audio/ui/rollover5.ogg", name = "audio.ui.select.2", sourceType = "static", audioType = "ui", key = "audio.ui.select", volume = .5 },
   { path = "audio/ui/click4.ogg", name = "audio.ui.click.1", sourceType = "static", audioType = "ui", key = "audio.ui.click", volume = 2.0 },
   { path = "audio/ui/click5.ogg", name = "audio.ui.click.2", sourceType = "static", audioType = "ui", key = "audio.ui.click", volume = 2.0 },
+  -- Player
+    -- Footsteps
+  { path = "audio/player/footsteps/Footstep 1_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "player.footsteps.1", sourceType = "static", audioType = "sfx", key = "player.footsteps", volume = 0.7 },
+  { path = "audio/player/footsteps/Footstep 2_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "player.footsteps.2", sourceType = "static", audioType = "sfx", key = "player.footsteps", volume = 0.7 },
+  { path = "audio/player/footsteps/Footstep 3_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "player.footsteps.3", sourceType = "static", audioType = "sfx", key = "player.footsteps", volume = 0.7 },
+  { path = "audio/player/footsteps/Footstep 4_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "player.footsteps.4", sourceType = "static", audioType = "sfx", key = "player.footsteps", volume = 0.7 },
+  { path = "audio/player/footsteps/Footstep 5_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "player.footsteps.5", sourceType = "static", audioType = "sfx", key = "player.footsteps", volume = 0.7 },
+  { path = "audio/player/footsteps/Footstep 6_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "player.footsteps.6", sourceType = "static", audioType = "sfx", key = "player.footsteps", volume = 0.7 },
+    -- Damage
+  { path = "audio/player/damage/Human Pain 1_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "player.hurt.1", sourceType = "static", audioType = "sfx", key = "player.hurt", volume = 1.0 },
+  { path = "audio/player/damage/Human Pain 2_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "player.hurt.2", sourceType = "static", audioType = "sfx", key = "player.hurt", volume = 1.0 },
+  { path = "audio/player/damage/Human Pain 3_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "player.hurt.3", sourceType = "static", audioType = "sfx", key = "player.hurt", volume = 1.0 },
+  -- Boss
+    -- Attack
+      -- Ground Slam
+  { path = "audio/boss zombie/attacks/ground slam/PLACEHOLDER Slam 1_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "boss.attack.slam.1", sourceType = "static", audioType = "sfx", key = "boss.attack.slam", volume = 1.0 },
+  { path = "audio/boss zombie/attacks/ground slam/PLACEHOLDER Slam 2_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "boss.attack.slam.2", sourceType = "static", audioType = "sfx", key = "boss.attack.slam", volume = 1.0 },
+  { path = "audio/boss zombie/attacks/ground slam/PLACEHOLDER Slam 3_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "boss.attack.slam.3", sourceType = "static", audioType = "sfx", key = "boss.attack.slam", volume = 1.0 },
+  { path = "audio/boss zombie/attacks/ground slam/PLACEHOLDER Slam 4_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "boss.attack.slam.4", sourceType = "static", audioType = "sfx", key = "boss.attack.slam", volume = 1.0 },
+  { path = "audio/boss zombie/attacks/ground slam/PLACEHOLDER Slam 5_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "boss.attack.slam.5", sourceType = "static", audioType = "sfx", key = "boss.attack.slam", volume = 1.0 },
+      -- Charge
+  { path = "audio/boss zombie/attacks/dash/PLACEHOLDER Dash Attack_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "boss.attack.chargeup.1", sourceType = "static", audioType = "sfx", key = "boss.attack.chargeup", volume = 1.0 },
+  { path = "audio/boss zombie/attacks/dash/PLACEHOLDER Dash Charge Time_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "boss.attack.charging.1", sourceType = "static", audioType = "sfx", key = "boss.attack.charging", volume = 1.0 },
+    -- Damage grunt
+  { path = "audio/boss zombie/damage grunt/Boss Damage Grunt 1_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "boss.grunt.1", sourceType = "static", audioType = "sfx", key = "boss.grunt", volume = 1.0 },
+  { path = "audio/boss zombie/damage grunt/Boss Damage Grunt 2_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "boss.grunt.2", sourceType = "static", audioType = "sfx", key = "boss.grunt", volume = 1.0 },
+  { path = "audio/boss zombie/damage grunt/Boss Damage Grunt 3_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "boss.grunt.3", sourceType = "static", audioType = "sfx", key = "boss.grunt", volume = 1.0 },
+  { path = "audio/boss zombie/damage grunt/Boss Damage Grunt 4_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "boss.grunt.4", sourceType = "static", audioType = "sfx", key = "boss.grunt", volume = 1.0 },
+  { path = "audio/boss zombie/damage grunt/Boss Damage Grunt 5_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "boss.grunt.5", sourceType = "static", audioType = "sfx", key = "boss.grunt", volume = 1.0 },
+    -- Death rattle
+  { path = "audio/boss zombie/deathrattle/PLACEHOLDER Boss Deathrattle_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "boss.death.1", sourceType = "static", audioType = "sfx", key = "boss.death", volume = 1.0 },
+    -- Groans
+  { path = "audio/boss zombie/groans/Boss Groaning 1_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "boss.groan.1", sourceType = "static", audioType = "sfx", key = "boss.groan", volume = 1.0 },
+  { path = "audio/boss zombie/groans/Boss Groaning 2_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "boss.groan.2", sourceType = "static", audioType = "sfx", key = "boss.groan", volume = 1.0 },
+  { path = "audio/boss zombie/groans/Boss Groaning 3_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "boss.groan.3", sourceType = "static", audioType = "sfx", key = "boss.groan", volume = 1.0 },
+  { path = "audio/boss zombie/groans/Boss Groaning 4_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "boss.groan.4", sourceType = "static", audioType = "sfx", key = "boss.groan", volume = 1.0 },
   -- Zombie
     -- Damage grunt
   { path = "audio/zombie/damage/damage grunt/Damage Grunt 1_Draft 1_Jingle Jam 24 Zombie_20241207.ogg", name = "zombie.grunt.1", sourceType = "static", audioType = "sfx", key = "zombie.grunt", volume = 0.8 },

@@ -78,6 +78,9 @@ player.attackCooldown = 0
 player.attack = "bat" -- "bat", "knife", "pistol"
 player.frames = player.attack == "pistol" and pistol_frames or player.attack == "bat" and bat_frames or player.attack == "knife" and knife_frames or walk_frames
 
+
+player.walkTimer = 0
+
 player.setWeapons = function(weapons)
   player.weapons = weapons
   -- for k, v in pairs(player.weapons) do
@@ -111,12 +114,16 @@ player.setZone = function(zone, x, y)
   player.audioShape.user2 = "playerListener"
 
   player.audioZombieGroanTimer = 0
+  player.audioBossGroanTimer = 0
 
   player.health = 5
 end
 
 player.hit = function(damage)
   player.health = player.health - damage
+  if damage > 0 then
+    audioManager.play("player.hurt")
+  end
   logger.info("Player hit for", damage, "damage!", player.health, "left!")
   if player.health <= 0 then
     logger.warn("TODO Player death handle")
@@ -155,6 +162,19 @@ player.update = function(dt, allowInput)
       end
     end
   end
+  player.audioBossGroanTimer = player.audioBossGroanTimer - dt
+  if player.audioBossGroanTimer <= 0 then
+    player.audioBossGroanTimer = 2
+    audioBoss = 0
+    for other in pairs(player.hc:collisions(player.audioShape)) do
+      if other.user == "character" and other.user2 == "boss" then
+        audioBoss = audioBoss + 1
+      end
+    end
+    if audioBoss ~= 0 then
+      audioManager.play("boss.groan")
+    end
+  end
 
   local mx, my = love.mouse.getPosition()
   local cw, ch = love.graphics.getDimensions()
@@ -191,6 +211,16 @@ player.update = function(dt, allowInput)
     else
       player.state = "idle"
     end
+  end
+
+  if moved then
+    player.walkTimer = player.walkTimer - dt
+    if player.walkTimer <= 0 then
+      player.walkTimer = 0.2
+      audioManager.play("player.footsteps")
+    end
+  else
+    player.walkTimer = 0
   end
 
   player.attackCooldown = player.attackCooldown - dt
