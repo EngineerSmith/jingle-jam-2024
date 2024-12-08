@@ -22,6 +22,14 @@ local frames_attack_right = {
   lg.newImage("assets/boss/fat/boss_fat_attack_right_005.png"),
 }
 
+local frames_death = {
+  lg.newImage("assets/boss/fat/boss_fat_death_000.png"),
+  lg.newImage("assets/boss/fat/boss_fat_death_001.png"),
+  lg.newImage("assets/boss/fat/boss_fat_death_002.png"),
+  lg.newImage("assets/boss/fat/boss_fat_death_003.png"),
+  lg.newImage("assets/boss/fat/boss_fat_death_004.png"),
+}
+
 local character = require("src.character")
 local boss = character.new()
 
@@ -30,6 +38,8 @@ boss.clone = function(hc, x, y)
   self.health = 30
   self.speed, self.rotationSpeed = 5.5, math.rad(220)
   self.state = "idle"
+
+  self.waitPeriod = audioManager.play("boss.attack.charging")
 
   self.chargeCooldown = 2
   self.chargeDamage, self.chargeSpeed = 1.5, 25
@@ -58,6 +68,10 @@ boss.clone = function(hc, x, y)
 end
 
 boss.hit = function(self, damage, zone)
+  if self.waitPeriod and self.waitPeriod:isPlaying() then
+    return
+  end
+
   self.health = self.health - damage
   local x, y = self.body:center()
   local r = self.body:rotation()
@@ -94,6 +108,12 @@ end
 local feelerStrength = 2.3
 local feelerPower = 1.05
 boss.update = function(self, dt, hc, zone, player)
+  if self.waitPeriod and self.waitPeriod:isPlaying() then
+    return
+  elseif self.waitPeriod then
+    self.waitPeriod = nil
+  end
+
   if self.health ~= 0 then
     self.attackCooldown = self.attackCooldown - dt
     if self.attackCooldown <= 0 then
@@ -199,6 +219,18 @@ boss.update = function(self, dt, hc, zone, player)
 
   if dt == 0 then return end
 
+  if self.state == "dead" then
+    self.timer = self.timer + dt
+    while self.timer >= 0.15 do
+      self.timer = self.timer - 0.15
+      self.frame = self.frame + 1
+      if self.frame > #frames_death then
+        self.frame = #frames_death
+      end
+    end
+    return
+  end
+
   local looped = false
   self.timer = self.timer + dt
   local animationSpeed = self.state == "attack_charge" and 0.02 or 0.1
@@ -240,6 +272,8 @@ boss.draw = function(self)
 
   if self.state == "attack_right" then
     plane:setTexture(frames_attack_right[self.frame])
+  elseif self.state == "dead" then
+    plane:setTexture(frames_death[self.frame])
   else
     plane:setTexture(frames_walk[self.frame])
   end

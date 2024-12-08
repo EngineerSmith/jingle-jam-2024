@@ -72,7 +72,7 @@ local humanity = 0
 scene.load = function()
   scene.zone = require("src.zone").getZone("city")
   road.createColliders("city", scene.zone.hc)
-  scene.zone:forceBossSpawn()
+  --scene.zone:forceBossSpawn()
 
   scene.player.setZone(scene.zone, 0, -5)
 
@@ -161,6 +161,13 @@ scene.update = function(dt)
       else
         humanityTimer = 1.5
       end
+    end
+
+    if input.baton:pressed("interact") then
+      --if humanity >= 200 then
+        humanity = humanity - 200
+        scene.zone:forceBossSpawn()
+      --end
     end
   end
   if scene.player then
@@ -302,6 +309,32 @@ scene.draw = function()
     lg.pop()
 
     lg.translate(widthOffset/2, heightOffset/2)
+
+    lg.push("all")
+    do
+      lg.translate((tw*scene.scale)/2, th*scene.scale-30*scene.scale)
+      local px, py = scene.player.shape:center()
+      local mag = math.sqrt(px^2+py^2)
+      if mag <= 5 then
+        local a = 1 - math.min((mag-(5-2)) / 2, 1)
+        local text = "Press E to spawn boss"
+        local w = lg.getFont():getWidth(text)
+        lg.translate(-w/2, 0)
+        lg.setColor(0,0,0,a)
+        local n = 1.95*scene.scale
+        lg.print(text, -n, 0)
+        lg.print(text, -n, n)
+        lg.print(text, -n,-n)
+        lg.print(text,  n, 0)
+        lg.print(text,  n, n)
+        lg.print(text,  n,-n)
+        lg.print(text,  0,-n)
+        lg.print(text,  0, n)
+        lg.setColor(1,1,1,a)
+        lg.print(text, 0, 0)
+      end
+    end
+    lg.pop()
 
     local padding = 4*scene.scale
     local squareSize = 16*4*scene.scale

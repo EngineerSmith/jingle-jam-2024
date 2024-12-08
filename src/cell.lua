@@ -64,12 +64,19 @@ cell.createEggCollider = function(self, hc)
   key1()
 end
 
+cell.removeEggCollider = function(self, hc)
+  hc:remove(self.eggCollider)
+  self.eggCollider = nil
+end
+
 cell.drawEgg = function(self)
-  egg:setScale(0.5)
-  egg:setTranslation(self.x, self.y, 0)
-  love.graphics.setColor(self.eggRed, 1, 1, 1)
-  egg:draw(eggShader)
-  love.graphics.setColor(1, 1, 1, 1)
+  if self.eggCollider then
+    egg:setScale(0.5)
+    egg:setTranslation(self.x, self.y, 0)
+    love.graphics.setColor(self.eggRed, 1, 1, 1)
+    egg:draw(eggShader)
+    love.graphics.setColor(1, 1, 1, 1)
+  end
 end
 
 return cell

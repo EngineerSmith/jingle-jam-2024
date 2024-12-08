@@ -56,7 +56,7 @@ park.createCollider = function(self, hc)
 end
 
 park.spawnBoss = function(self, hc)
-  local boss = require("assets.boss.fat").clone(hc, 0, 2)
+  local boss = require("assets.boss.fat").clone(hc, 0, 0)
   return boss
 end
 

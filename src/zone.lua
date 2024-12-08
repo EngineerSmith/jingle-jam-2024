@@ -177,6 +177,7 @@ zone.makeNoise = function(self, level, x, y)
 end
 
 zone.forceBossSpawn = function(self)
+  self.bossCell:removeEggCollider(self.hc)
   self.boss = self.bossCell:spawnBoss(self.hc)
 end
 
