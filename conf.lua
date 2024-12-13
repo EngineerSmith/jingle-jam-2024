@@ -31,7 +31,7 @@ end
 
 assertFatal(not jit, "Luajit missing", "This game requires luajit - that's packaged with the game.")
 assertFatal(love._version_major ~= 12, "Love version error", "Project requires love 12.")
-assertFatal(jit.os ~= "Windows" and jit.os ~= "Linux", "Incompatible error", "This game does not support this platform: "..jit.os)
+--assertFatal(jit.os ~= "Windows" and jit.os ~= "Linux", "Incompatible error", "This game does not support this platform: "..jit.os)
 
 local settings = require("util.settings")
 local json = require("util.json")
